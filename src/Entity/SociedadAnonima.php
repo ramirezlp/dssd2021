@@ -54,9 +54,18 @@ class SociedadAnonima
     private $estado;
 
     /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $archivo;
+
+    /**
      * @ORM\OneToMany(targetEntity=SociedadAnonimaSocio::class, mappedBy="sociedadAnonima")
      */
     private $socios;
+
+    public function __construct(){
+        $this->setFechaCreacion(new \DateTime());
+    }
 
     public function getId(): ?int
     {
@@ -155,4 +164,24 @@ class SociedadAnonima
         return $this->socios;
     }
 
+
+    /**
+     * Get the value of archivo
+     */ 
+    public function getArchivo()
+    {
+        return $this->archivo;
+    }
+
+    /**
+     * Set the value of archivo
+     *
+     * @return  self
+     */ 
+    public function setArchivo($archivo)
+    {
+        $this->archivo = $archivo;
+
+        return $this;
+    }
 }

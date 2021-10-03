@@ -1,19 +1,93 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello SociedadAnonimaController!{% endblock %}
+{% block title %}Formulario SA{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code><a href="{{ 'C:/Users/aramirez/Desktop/DSSD 2021/dssd2021/src/Controller/SociedadAnonimaController.php'|file_link(0) }}">src/Controller/SociedadAnonimaController.php</a></code></li>
-        <li>Your template at <code><a href="{{ 'C:/Users/aramirez/Desktop/DSSD 2021/dssd2021/templates/sociedad_anonima/index.html.twig'|file_link(0) }}">templates/sociedad_anonima/index.html.twig</a></code></li>
-    </ul>
-</div>
+
+      <div class="starter-template">
+        <h1>Registro - Sociedad Anónima</h1>
+          {{
+          form_start(
+            form,
+            {
+              attr: {
+                class: 'horizontal-form',
+              }
+            }
+          )
+        }}
+          <div class="offset-md-3 col-md-6">
+              <div class="form-group">
+                  {{ form_label(form.nombre) }}
+                  <div class="form_field">
+                      {{ form_widget(form.nombre) }}
+                  </div>
+              </div>
+          </div>
+          <div class="offset-md-3 col-md-6">
+              <div class="form-group">
+                  {{ form_label(form.domicilioLegal) }}
+                  <div class="form_field">
+                      {{ form_widget(form.domicilioLegal) }}
+                  </div>
+              </div>
+          </div>
+          <div class="offset-md-3 col-md-6">
+              <div class="form-group">
+                  {{ form_label(form.domicilioReal) }}
+                  <div class="form_field">
+                      {{ form_widget(form.domicilioReal) }}
+                  </div>
+              </div>
+          </div>
+
+           <div class="offset-md-3 col-md-6">
+              <div class="form-group">
+                  {{ form_label(form.mail) }}
+                  <div class="form_field">
+                      {{ form_widget(form.mail) }}
+                  </div>
+              </div>
+          </div>
+           <div class="offset-md-3 col-md-6">
+              <div class="form-group">
+                  {{ form_label(form.pais) }}
+                  <div class="form_field">
+                      {{ form_widget(form.pais) }}
+                  </div>
+              </div>
+          </div>
+          <div class="offset-md-3 col-md-6">
+              <div class="form-group">
+                  {{ form_label(form.estado) }}
+                  <div class="form_field">
+                      {{ form_widget(form.estado) }}
+                  </div>
+              </div>
+          </div>
+         <div class="offset-md-3 col-md-6">
+              <div class="form-group">
+                  {{ form_label(form.archivo) }}
+                  <div class="form_field">
+                      {{ form_widget(form.archivo) }}
+                  </div>
+              </div>
+          </div>
+        <div>
+          <div class="row justify-content-center">
+{{ form_widget(form.submit) }}
+          {{ form_widget(form._token) }}
+            {{
+            form_end(
+              form,
+              {
+                render_rest: false
+              }
+            )
+          }}
+        </div>
+
+
+    
 {% endblock %}
