@@ -139,7 +139,25 @@ class SociedadAnonimaType extends AbstractType
                     'class' => 'form-control filestyle',
                     'data-buttonText' => "Examinar"
                 )
-            ))->add('submit', SubmitType::class, array(
+            ))
+            ->add(
+                'socios',
+                CollectionType::class,
+                array(
+                    'entry_type' => SocioType::class,
+                    'allow_delete' => true,
+                    'allow_add' => true,
+                    'label' => 'Socios',
+                    'prototype_name' => '__socio__',
+                    'label_attr' => array(
+                        'class' => 'hidden'
+                    ),
+                    'attr' => array(
+                        'class' => 'hidden pepe'
+                    )
+                )
+            )
+            ->add('submit', SubmitType::class, array(
                 'label' => 'Enviar',
                 'attr' => array('class' => 'btn btn-primary')
             ))

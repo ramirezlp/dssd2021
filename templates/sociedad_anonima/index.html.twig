@@ -17,7 +17,8 @@
             }
           )
         }}
-          <div class="offset-md-3 col-md-6">
+        <div class="row pt-5">
+          <div class="col-md-4">
               <div class="form-group">
                   {{ form_label(form.nombre) }}
                   <div class="form_field">
@@ -25,7 +26,7 @@
                   </div>
               </div>
           </div>
-          <div class="offset-md-3 col-md-6">
+          <div class="col-md-4">
               <div class="form-group">
                   {{ form_label(form.domicilioLegal) }}
                   <div class="form_field">
@@ -33,7 +34,7 @@
                   </div>
               </div>
           </div>
-          <div class="offset-md-3 col-md-6">
+          <div class="col-md-4">
               <div class="form-group">
                   {{ form_label(form.domicilioReal) }}
                   <div class="form_field">
@@ -41,8 +42,9 @@
                   </div>
               </div>
           </div>
-
-           <div class="offset-md-3 col-md-6">
+        </div>
+        <div class="row">
+           <div class="col-md-6">
               <div class="form-group">
                   {{ form_label(form.mail) }}
                   <div class="form_field">
@@ -50,23 +52,7 @@
                   </div>
               </div>
           </div>
-           <div class="offset-md-3 col-md-6">
-              <div class="form-group">
-                  {{ form_label(form.pais) }}
-                  <div class="form_field">
-                      {{ form_widget(form.pais) }}
-                  </div>
-              </div>
-          </div>
-          <div class="offset-md-3 col-md-6">
-              <div class="form-group">
-                  {{ form_label(form.estado) }}
-                  <div class="form_field">
-                      {{ form_widget(form.estado) }}
-                  </div>
-              </div>
-          </div>
-         <div class="offset-md-3 col-md-6">
+          <div class="col-md-6">
               <div class="form-group">
                   {{ form_label(form.archivo) }}
                   <div class="form_field">
@@ -74,9 +60,46 @@
                   </div>
               </div>
           </div>
-        <div>
-          <div class="row justify-content-center">
-{{ form_widget(form.submit) }}
+        </div>
+        <div class="row">
+           <div class="col-md-6">
+              <div class="form-group">
+                  {{ form_label(form.pais) }}
+                  <div class="form_field">
+                      {{ form_widget(form.pais) }}
+                  </div>
+              </div>
+          </div>
+          <div class="col-md-6">
+              <div class="form-group">
+                  {{ form_label(form.estado) }}
+                  <div class="form_field">
+                      {{ form_widget(form.estado) }}
+                  </div>
+              </div>
+          </div>
+        </div>
+        <div class="col-md-12">
+              <h4>Socios</h4>
+              {# store the prototype on the data-prototype attribute #}
+              <div id="socios-fields-list"
+                  data-prototype="{{ form_widget(form.socios.vars.prototype)|e }}"
+                  data-widget-tags="{{ "<div></div>"|e }}"
+                  data-widget-counter="{{ form.socios|length }}">
+              {% for socioField in form.socios %}
+                  <div class="row">
+                      {{ form_errors(socioField) }}
+                      {{ form_widget(socioField) }}
+                  </div>
+              {% endfor %}
+              </div>
+              <button type="button"
+                  class="add-another-collection-widget btn btn-light mt-3 mb-3"
+                  data-list-selector="#socios-fields-list">+ Agregar Socio</button>
+
+        </div>
+          <div class="row justify-content-center pt-3">
+          {{ form_widget(form.submit) }}
           {{ form_widget(form._token) }}
             {{
             form_end(
@@ -90,4 +113,34 @@
 
 
     
+{% endblock %}
+{% block javascripts %}
+  {{ parent() }}
+  <script>
+  $(document).ready(function () {
+        jQuery('.add-another-collection-widget').click(function (e) {
+          var list = jQuery(jQuery(this).attr('data-list-selector'));
+          // Try to find the counter of the list or use the length of the list
+          var counter = list.data('widget-counter') || list.children().length;
+
+          // grab the prototype template
+          var newWidget = list.attr('data-prototype');
+          console.log(newWidget)
+          // replace the "__name__" used in the id and name of the prototype
+          // with a number that's unique to your emails
+          // end name attribute looks like name="contact[emails][2]"
+          newWidget = newWidget.replace(/__socio__/g, counter);
+          // Increase the counter
+          counter++;
+          // And store it, the length cannot be used if deleting widgets is allowed
+          list.data('widget-counter', counter);
+
+          // create a new list element and add it to the list
+          var newElem = jQuery(list.attr('data-widget-tags')).html(newWidget);
+          newElem.appendTo(list);
+          $("#sociedad_anonima_socios_"+ (counter-1)).addClass('d-flex flex-fill pt-2')
+          $("#sociedad_anonima_socios_"+ (counter-1) + " div").addClass('col-md-4')
+      });
+  });
+  </script>
 {% endblock %}
