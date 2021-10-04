@@ -64,17 +64,21 @@
         <div class="row">
            <div class="col-md-6">
               <div class="form-group">
-                  {{ form_label(form.pais) }}
+                  <label class="required">Paises</label>
                   <div class="form_field">
-                      {{ form_widget(form.pais) }}
+                     <select class="form-control" id="paises">
+                        <option>Selecciona un pais</option>
+                    </select>
                   </div>
               </div>
           </div>
           <div class="col-md-6">
               <div class="form-group">
-                  {{ form_label(form.estado) }}
+                  <label class="required">Estados</label>
                   <div class="form_field">
-                      {{ form_widget(form.estado) }}
+                     <select class="form-control" id="estados">
+                        <option>Selecciona un estado</option>
+                    </select>
                   </div>
               </div>
           </div>
@@ -110,14 +114,13 @@
             )
           }}
         </div>
-
-
-    
 {% endblock %}
 {% block javascripts %}
-  {{ parent() }}
-  <script>
-  $(document).ready(function () {
+{{parent()}}
+<script>
+$( document ).ready(function() {
+    cargarPaises();
+
         jQuery('.add-another-collection-widget').click(function (e) {
           var list = jQuery(jQuery(this).attr('data-list-selector'));
           // Try to find the counter of the list or use the length of the list
@@ -142,5 +145,65 @@
           $("#sociedad_anonima_socios_"+ (counter-1) + " div").addClass('col-md-4')
       });
   });
-  </script>
+
+    $('#paises').on('change', function() {
+        $('#estados').find('option')
+            .remove()
+            .end()
+            .append('<option>Selecciona un estado</option>')
+        ;
+        cargarEstados(this.value);
+    });
+
+    function cargarPaises() {
+        $.ajax({
+            url: "https://countries.trevorblades.com/",
+            contentType: "application/json",
+            type:'POST',
+            data: JSON.stringify({ 
+                query:  `query {
+                            countries {
+                                code,
+                                name
+                            }
+                        }`
+            }),
+        success: function(result) {
+            console.log(result);
+            $.each(result.data.countries, function(i, obj) {
+                var div_data="<option value="+obj.code+">"+obj.name+"</option>";
+                $(div_data).appendTo('#paises'); 
+            });  
+        }});
+    }
+
+    function cargarEstados(codigoPais) {
+        $.ajax({
+            url: "https://countries.trevorblades.com/",
+            contentType: "application/json",
+            type:'POST',
+            data: JSON.stringify({ 
+                query:  `query {
+                            country (code: "${codigoPais}") {
+                                name,
+                                states {
+                                    name
+                                }
+                            }
+                        }`
+            }),
+        success: function(result) {
+            console.log(result);
+            $.each(result.data.country.states, function(i, obj) {
+                var div_data="<option value="+obj.name+">"+obj.name+"</option>";
+                $(div_data).appendTo('#estados'); 
+            });  
+        }});
+    }
+});
+</script>
 {% endblock %}
+
+
+
+
