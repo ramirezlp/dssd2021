@@ -3,7 +3,12 @@
 {% block title %}Formulario SA{% endblock %}
 
 {% block body %}
-
+        <style>
+        .checkbox-2x {
+            transform: scale(2);
+            -webkit-transform: scale(2);
+        }
+        </style>
 
       <div class="starter-template">
         <h1>Registro - Sociedad Anónima</h1>
@@ -57,6 +62,22 @@
                   {{ form_label(form.archivo) }}
                   <div class="form_field">
                       {{ form_widget(form.archivo) }}
+                  </div>
+              </div>
+          </div>
+            <div class="col-md-6 d-none">
+              <div class="form-group">
+                  {{ form_label(form.pais) }}
+                  <div class="form_field">
+                      {{ form_widget(form.pais) }}
+                  </div>
+              </div>
+          </div>
+        <div class="col-md-6 d-none">
+              <div class="form-group">
+                  {{ form_label(form.estado) }}
+                  <div class="form_field">
+                      {{ form_widget(form.estado) }}
                   </div>
               </div>
           </div>
@@ -128,7 +149,6 @@ $( document ).ready(function() {
 
           // grab the prototype template
           var newWidget = list.attr('data-prototype');
-          console.log(newWidget)
           // replace the "__name__" used in the id and name of the prototype
           // with a number that's unique to your emails
           // end name attribute looks like name="contact[emails][2]"
@@ -142,9 +162,9 @@ $( document ).ready(function() {
           var newElem = jQuery(list.attr('data-widget-tags')).html(newWidget);
           newElem.appendTo(list);
           $("#sociedad_anonima_socios_"+ (counter-1)).addClass('d-flex flex-fill pt-2')
-          $("#sociedad_anonima_socios_"+ (counter-1) + " div").addClass('col-md-4')
+          $("#sociedad_anonima_socios_"+ (counter-1) + " div").addClass('col-md-3')
+          $("#sociedad_anonima_socios_"+ (counter-1)).append("<a type='button' onclick='eliminarSocio(" + (counter-1) + ")' class='btn btn-secondary text-white align-self-end mb-0'><i class='fa fa-trash'></i></a>")
       });
-  });
 
     $('#paises').on('change', function() {
         $('#estados').find('option')
@@ -152,8 +172,19 @@ $( document ).ready(function() {
             .end()
             .append('<option>Selecciona un estado</option>')
         ;
+        $("#sociedad_anonima_pais").val(this.value)
         cargarEstados(this.value);
     });
+
+        $("#sociedad_anonima_estado").change(function (e) { 
+            e.preventDefault();
+            $("#sociedad_anonima_estado").val(this.value) 
+        });
+    });
+
+    function eliminarSocio(id){
+         $("#sociedad_anonima_socios_" + id).remove();
+    }
 
     function cargarPaises() {
         $.ajax({
@@ -169,7 +200,7 @@ $( document ).ready(function() {
                         }`
             }),
         success: function(result) {
-            console.log(result);
+
             $.each(result.data.countries, function(i, obj) {
                 var div_data="<option value="+obj.code+">"+obj.name+"</option>";
                 $(div_data).appendTo('#paises'); 
@@ -193,14 +224,13 @@ $( document ).ready(function() {
                         }`
             }),
         success: function(result) {
-            console.log(result);
             $.each(result.data.country.states, function(i, obj) {
                 var div_data="<option value="+obj.name+">"+obj.name+"</option>";
                 $(div_data).appendTo('#estados'); 
             });  
         }});
     }
-});
+
 </script>
 {% endblock %}
 

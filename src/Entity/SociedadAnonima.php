@@ -5,6 +5,7 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\SociedadAnonimaSocio;
 use App\Repository\SociedadAnonimaRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * @ORM\Entity(repositoryClass=SociedadAnonimaRepository::class)
@@ -63,8 +64,10 @@ class SociedadAnonima
      */
     private $socios;
 
+
     public function __construct(){
         $this->setFechaCreacion(new \DateTime());
+        $this->socios = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -156,13 +159,6 @@ class SociedadAnonima
         return $this;
     }
 
-    /**
-     * Get the value of socios
-     */ 
-    public function getSocios()
-    {
-        return $this->socios;
-    }
 
 
     /**
@@ -181,6 +177,25 @@ class SociedadAnonima
     public function setArchivo($archivo)
     {
         $this->archivo = $archivo;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of socios
+     */
+    public function getSocios()
+    {
+        return $this->socios;
+    }
+
+
+    /**
+     * Set the value of socios
+     */
+    public function setSocios($socios): self
+    {
+        $this->socios = $socios;
 
         return $this;
     }

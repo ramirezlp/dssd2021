@@ -54,11 +54,27 @@ class SocioType extends AbstractType
                     )
                 )
             )->add(
+                'esRepresentanteLegal',
+                ChoiceType::class,
+                array(
+                    'choices' => [
+                        'Si' => true,
+                        'No' => false
+                    ],
+                    'required' => false,
+                    'label' => '¿Representante legal?',
+                    'placeholder' => '-- Elegir --',
+                    'attr' => array(
+                        'class' => 'form-control choice',
+                        'data-placeholder' => '-- Elegir --',
+                        'tabindex' => '5'
+                    )
+                )
+            )->add(
                 'porcentaje',
                 IntegerType::class,
                 array(
                     'required' => true,
-                    'mapped' => false,
                     'label' => 'Porcentaje de aportes',
                     'attr' => array(
                         'class' => 'form-control',
