@@ -14,6 +14,8 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use App\Resources\Access;
+use App\Resources\Process;
 
 class SociedadAnonimaController extends AbstractController
 {
@@ -133,6 +135,8 @@ class SociedadAnonimaController extends AbstractController
                 'success',
                 'Se guardó correctamente la Sociedad Anónima.'
             );
+            $this->completar_solicitud($sociedadAnonima->getNombre(),$sociedadAnonima->getDomicilioReal(),$sociedadAnonima->getDomicilioLegal(),$sociedadAnonima->getMail(),
+            $sociedadAnonima->getArchivo()); //falta paises, estados y socios
 
             return $this->redirectToRoute('sociedad_anonima');
         }else{
@@ -150,36 +154,16 @@ class SociedadAnonimaController extends AbstractController
         ]);
     }
 
-    /*
-    public function setPaises(){
-        $url = 'https://countries.trevorblades.com/';
-
-        $data = array("query" => "query {\n countries {\n code,\n name\n }\n }");
-        $data = json_encode($data);
-        // use key 'http' even if you send the request to https://...
-        $options = array(
-            'http' => array(
-                'header'  => "Content-type: application/json",
-                'method'  => 'POST',
-                'content' => $data
-            )
-        );
-        $context  = stream_context_create($options);
-        $result = file_get_contents($url, false, $context);
-        if ($result === FALSE)
-        
-        var_dump($result);
-        $result = json_decode($result);
-
-        $choices = [];
-        foreach($result->data->countries as $pais){
-            $choices[$pais->name] = $pais->code;
-        };
-
-        $session = new Session();
-        $session->start();
-        $session->set('choices', $choices);
+    function completar_solicitud($nombre, $domicilioReal, $domicilioLegal, $mail, $estatuto){
+        Access::login();
+        Process::setVariable($_SESSION['taskId'], 'nombre', $nombre, 'String');
+        Process::setVariable($_SESSION['taskId'], 'domicilioReal', $domicilioReal, 'String');
+        Process::setVariable($_SESSION['taskId'], 'domicilioLegal', $domicilioLegal, 'String');
+        Process::setVariable($_SESSION['taskId'], 'mail', $mail, 'String');
+        Process::setVariable($_SESSION['taskId'], 'estatuto', $estatuto, 'String');
+        // Process::setVariable($_SESSION['taskId'], 'nombre', $nombre, 'String');
+        // Process::setVariable($_SESSION['taskId'], 'nombre', $nombre, 'String');
+        // Process::setVariable($_SESSION['taskId'], 'nombre', $nombre, 'String');
+        return Process::completeActivity($_SESSION['taskId']);
     }
-    */
-
 }
