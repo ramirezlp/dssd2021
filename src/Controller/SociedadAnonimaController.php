@@ -11,6 +11,8 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use App\Resources\Access;
+use App\Resources\Process;
 
 class SociedadAnonimaController extends AbstractController
 {
@@ -87,6 +89,8 @@ class SociedadAnonimaController extends AbstractController
                 'success',
                 'Se guardó correctamente la Sociedad Anónima.'
             );
+            $this->completar_solicitud($sociedadAnonima->getNombre(),$sociedadAnonima->getDomicilioReal(),$sociedadAnonima->getDomicilioLegal(),$sociedadAnonima->getMail(),
+            $sociedadAnonima->getArchivo()); //falta paises, estados y socios
 
             return $this->redirectToRoute('sociedad_anonima');
         }else{
@@ -102,5 +106,18 @@ class SociedadAnonimaController extends AbstractController
             'controller_name' => 'SociedadAnonimaController',
             'form' => $form->createView()
         ]);
+    }
+
+    function completar_solicitud($nombre, $domicilioReal, $domicilioLegal, $mail, $estatuto){
+        Access::login();
+        Process::setVariable($_SESSION['taskId'], 'nombre', $nombre, 'String');
+        Process::setVariable($_SESSION['taskId'], 'domicilioReal', $domicilioReal, 'String');
+        Process::setVariable($_SESSION['taskId'], 'domicilioLegal', $domicilioLegal, 'String');
+        Process::setVariable($_SESSION['taskId'], 'mail', $mail, 'String');
+        Process::setVariable($_SESSION['taskId'], 'estatuto', $estatuto, 'String');
+        // Process::setVariable($_SESSION['taskId'], 'nombre', $nombre, 'String');
+        // Process::setVariable($_SESSION['taskId'], 'nombre', $nombre, 'String');
+        // Process::setVariable($_SESSION['taskId'], 'nombre', $nombre, 'String');
+        return Process::completeActivity($_SESSION['taskId']);
     }
 }
