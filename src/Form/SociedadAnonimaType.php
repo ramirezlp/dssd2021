@@ -2,8 +2,11 @@
 
 namespace App\Form;
 
+use App\Controller\SociedadAnonimaController;
 use App\Form\SocioType;
+use App\Form\PaisEstadoType;
 use App\Entity\SociedadAnonima;
+use App\Entity\SociedadAnonimaSocio;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -82,32 +85,6 @@ class SociedadAnonimaType extends AbstractType
                     )
                 )
             )
-            ->add(
-                'pais',
-                TextType::class,
-                array(
-                    'required' => false,
-                    'label' => 'Pais',
-                    'attr' => array(
-                        'class' => 'form-control',
-                        'placeholder' => 'Escriba un pais.',
-                        'tabindex' => '5'
-                    )
-                )
-            )
-            ->add(
-                'estado',
-                TextType::class,
-                array(
-                    'required' => false,
-                    'label' => 'Estado',
-                    'attr' => array(
-                        'class' => 'form-control',
-                        'placeholder' => 'Escriba un estado.',
-                        'tabindex' => '5'
-                    )
-                )
-                    )
             ->add('archivo', FileType::class, array(
                 'required' => true,
                 'constraints' => [
@@ -142,6 +119,23 @@ class SociedadAnonimaType extends AbstractType
                 )
             ))
             ->add(
+                'paisesEstados',
+                CollectionType::class,
+                array(
+                    'entry_type' => PaisEstadoType::class,
+                    'allow_delete' => true,
+                    'allow_add' => true,
+                    'label' => 'Paises y estados',
+                    'prototype_name' => '__paisesestados__',
+                    'label_attr' => array(
+                        'class' => 'hidden'
+                    ),
+                    'attr' => array(
+                        'class' => 'hidden'
+                    )
+                )
+            )
+            ->add(
                 'socios',
                 CollectionType::class,
                 array(
@@ -159,14 +153,16 @@ class SociedadAnonimaType extends AbstractType
                 )
             )
             ->add('submit', SubmitType::class, array(
-                'label' => 'Enviar',
-                'attr' => array('class' => 'btn btn-primary')
+                'label' => 'Enviar Formulario',
+                'attr' => array('class' => 'btn btn-primary float-right')
             ))
             ;
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
+
+
         $resolver->setDefaults([
             'data_class' => SociedadAnonima::class,
             'adjuntos' => []

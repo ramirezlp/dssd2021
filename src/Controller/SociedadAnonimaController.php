@@ -2,12 +2,15 @@
 
 namespace App\Controller;
 
+use App\Entity\PaisEstado;
 use App\Entity\SociedadAnonima;
 use App\Form\SociedadAnonimaType;
 use App\Entity\SociedadAnonimaSocio;
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -26,7 +29,7 @@ class SociedadAnonimaController extends AbstractController
         $form = $this->createForm(SociedadAnonimaType::class, $sociedadAnonima);
 
         $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
+        if ($form->isSubmitted()) {
             // $form->getData() holds the submitted values
             // but, the original `$sociedadAnonima` variable has also been updated
 
@@ -52,6 +55,49 @@ class SociedadAnonimaController extends AbstractController
                 // updates the 'brochureFilename' property to store the PDF file name
                 // instead of its contents
                 $sociedadAnonima->setArchivo($newFilename);
+            }
+
+            $paises = $sociedadAnonima->getPaisesEstados();
+
+            $sociedadAnonima->setPaisesEstados(new ArrayCollection());
+            $i = 0;
+            foreach($paises as $pais){
+                $paisNew = new PaisEstado();
+                if($pais->getPais() != null && $pais->getEstado() != null){
+                    $entity = $em->getRepository(PaisEstado::class)->findOneBy(array('pais' => $pais->getPais(), 'estado' => $pais->getEstado()));
+                    if($entity != null){
+                        $sociedadAnonima->addPaisesEstados($entity);
+                    }else{
+                        $paisNew->setPais($pais->getPais());
+                        $paisNew->setEstado($pais->getEstado());
+                        $em->persist($paisNew);
+                        $sociedadAnonima->addPaisesEstados($paisNew);
+                    }
+                    $i = $i + 1;
+                }else{
+                    if($pais->getPais() != null){
+                        $entity = $em->getRepository(PaisEstado::class)->findOneBy(array('pais' => $pais->getPais(), 'estado' => null));
+                        if($entity != null){
+                            $sociedadAnonima->addPaisesEstados($entity);
+                        }else{
+                            $paisNew->setPais($pais->getPais());
+                            $em->persist($paisNew);
+                            $sociedadAnonima->addPaisesEstados($paisNew);
+                        }
+                        $i = $i + 1;
+                    }
+                }
+            }
+            if($i == 0){
+                $entity = $em->getRepository(PaisEstado::class)->findOneBy(array('pais' => 'AR', 'estado' => null));
+                if($entity != null){
+                    $sociedadAnonima->addPaisesEstados($entity);
+                }else{
+                    $paisNew = new PaisEstado();
+                    $paisNew->setPais('AR');
+                    $em->persist($paisNew);
+                    $sociedadAnonima->addPaisesEstados($paisNew);
+                }
             }
 
             $socios = $sociedadAnonima->getSocios();
@@ -103,4 +149,37 @@ class SociedadAnonimaController extends AbstractController
             'form' => $form->createView()
         ]);
     }
+
+    /*
+    public function setPaises(){
+        $url = 'https://countries.trevorblades.com/';
+
+        $data = array("query" => "query {\n countries {\n code,\n name\n }\n }");
+        $data = json_encode($data);
+        // use key 'http' even if you send the request to https://...
+        $options = array(
+            'http' => array(
+                'header'  => "Content-type: application/json",
+                'method'  => 'POST',
+                'content' => $data
+            )
+        );
+        $context  = stream_context_create($options);
+        $result = file_get_contents($url, false, $context);
+        if ($result === FALSE)
+        
+        var_dump($result);
+        $result = json_decode($result);
+
+        $choices = [];
+        foreach($result->data->countries as $pais){
+            $choices[$pais->name] = $pais->code;
+        };
+
+        $session = new Session();
+        $session->start();
+        $session->set('choices', $choices);
+    }
+    */
+
 }

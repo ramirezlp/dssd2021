@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Entity\PaisEstado;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\SociedadAnonimaSocio;
 use App\Repository\SociedadAnonimaRepository;
@@ -44,15 +45,6 @@ class SociedadAnonima
      */
     private $mail;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $pais;
-
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $estado;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -64,10 +56,16 @@ class SociedadAnonima
      */
     private $socios;
 
+    /** 
+     * @ORM\ManyToMany(targetEntity="App\Entity\PaisEstado", mappedBy="sociedades",cascade={"persist"})
+     */
+    private $paisesEstados;
+        
 
     public function __construct(){
         $this->setFechaCreacion(new \DateTime());
         $this->socios = new ArrayCollection();
+        $this->paisesEstados = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -135,29 +133,6 @@ class SociedadAnonima
         return $this;
     }
 
-    public function getPais(): ?string
-    {
-        return $this->pais;
-    }
-
-    public function setPais(string $pais): self
-    {
-        $this->pais = $pais;
-
-        return $this;
-    }
-
-    public function getEstado(): ?string
-    {
-        return $this->estado;
-    }
-
-    public function setEstado(?string $estado): self
-    {
-        $this->estado = $estado;
-
-        return $this;
-    }
 
 
 
@@ -196,6 +171,42 @@ class SociedadAnonima
     public function setSocios($socios): self
     {
         $this->socios = $socios;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of paisesEstados
+     */ 
+    public function getPaisesEstados()
+    {
+        return $this->paisesEstados;
+    }
+
+    public function addPaisesEstados(PaisEstado $paisEstado): self
+    {
+        if (!$this->paisesEstados->contains($paisEstado)) {
+            $this->paisesEstados[] = $paisEstado;
+            $paisEstado->addSociedades($this);
+        }
+        return $this;
+    }
+    public function removePaisesEstados(PaisEstado $paisEstado): self
+    {
+        if ($this->paisesEstados->removeElement($paisEstado)) {
+            $paisEstado->removeSociedades($this);
+        }
+        return $this;
+    }
+
+    /**
+     * Set the value of paisesEstados
+     *
+     * @return  self
+     */ 
+    public function setPaisesEstados($paisesEstados)
+    {
+        $this->paisesEstados = $paisesEstados;
 
         return $this;
     }

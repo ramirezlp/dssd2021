@@ -22,7 +22,7 @@
             }
           )
         }}
-        <div class="row pt-5">
+        <div class="row pt-2">
           <div class="col-md-4">
               <div class="form-group">
                   {{ form_label(form.nombre) }}
@@ -65,47 +65,29 @@
                   </div>
               </div>
           </div>
-            <div class="col-md-6 d-none">
-              <div class="form-group">
-                  {{ form_label(form.pais) }}
-                  <div class="form_field">
-                      {{ form_widget(form.pais) }}
-                  </div>
-              </div>
-          </div>
-        <div class="col-md-6 d-none">
-              <div class="form-group">
-                  {{ form_label(form.estado) }}
-                  <div class="form_field">
-                      {{ form_widget(form.estado) }}
-                  </div>
-              </div>
-          </div>
+
         </div>
-        <div class="row">
-           <div class="col-md-6">
-              <div class="form-group">
-                  <label class="required">Paises</label>
-                  <div class="form_field">
-                     <select class="form-control" id="paises">
-                        <option>Selecciona un pais</option>
-                    </select>
+        <div class="col-md-12 pl-0 pr-0">
+              <p  class="pb-0 mb-0">Paises y estados</p>
+              {# store the prototype on the data-prototype attribute #}
+              <div id="paisesestados-fields-list"
+                  data-prototype="{{ form_widget(form.paisesEstados.vars.prototype)|e }}"
+                  data-widget-tags="{{ "<div></div>"|e }}"
+                  data-widget-counter="{{ form.paisesEstados|length }}">
+              {% for paisEstado in form.paisesEstados %}
+                  <div class="row">
+                      {{ form_errors(paisEstado) }}
+                      {{ form_widget(paisEstado) }}
                   </div>
+              {% endfor %}
               </div>
-          </div>
-          <div class="col-md-6">
-              <div class="form-group">
-                  <label class="required">Estados</label>
-                  <div class="form_field">
-                     <select class="form-control" id="estados">
-                        <option>Selecciona un estado</option>
-                    </select>
-                  </div>
-              </div>
-          </div>
+              <button type="button"
+                  class="add-another-paisestado-widget btn btn-light mt-2"
+                  data-list-selector="#paisesestados-fields-list">+ Agregar</button>
+
         </div>
-        <div class="col-md-12">
-              <h4>Socios</h4>
+        <div class="col-md-12 pl-0 mt-3 pr-0">
+              <p class="pb-0 mb-0">Socios</p>
               {# store the prototype on the data-prototype attribute #}
               <div id="socios-fields-list"
                   data-prototype="{{ form_widget(form.socios.vars.prototype)|e }}"
@@ -119,11 +101,11 @@
               {% endfor %}
               </div>
               <button type="button"
-                  class="add-another-collection-widget btn btn-light mt-3 mb-3"
-                  data-list-selector="#socios-fields-list">+ Agregar Socio</button>
+                  class="add-another-collection-widget btn btn-light mt-2"
+                  data-list-selector="#socios-fields-list">+ Agregar</button>
 
         </div>
-          <div class="row justify-content-center pt-3">
+          <div class="row justify-content-end pt-3">
           {{ form_widget(form.submit) }}
           {{ form_widget(form._token) }}
             {{
@@ -140,7 +122,35 @@
 {{parent()}}
 <script>
 $( document ).ready(function() {
-    cargarPaises();
+    //cargarPaises();
+
+        jQuery('.add-another-paisestado-widget').click(function (e) {
+          var list = jQuery(jQuery(this).attr('data-list-selector'));
+          // Try to find the counter of the list or use the length of the list
+          var counter = list.data('widget-counter') || list.children().length;
+
+          // grab the prototype template
+          var newWidget = list.attr('data-prototype');
+          // replace the "__name__" used in the id and name of the prototype
+          // with a number that's unique to your emails
+          // end name attribute looks like name="contact[emails][2]"
+          newWidget = newWidget.replace(/__paisesestados__/g, counter);
+          // Increase the counter
+          counter++;
+          // And store it, the length cannot be used if deleting widgets is allowed
+          list.data('widget-counter', counter);
+
+          // create a new list element and add it to the list
+          var newElem = jQuery(list.attr('data-widget-tags')).html(newWidget);
+          newElem.appendTo(list);
+          $("#sociedad_anonima_paisesEstados_"+ (counter-1)).addClass('row pt-2')
+          $("#sociedad_anonima_paisesEstados_"+ (counter-1) + " div").addClass('col')
+          $("#sociedad_anonima_paisesEstados_"+ (counter-1) +"_pais").parent().addClass('d-none')
+          $("#sociedad_anonima_paisesEstados_"+ (counter-1) +"_estado").parent().addClass('d-none')
+          $("#sociedad_anonima_paisesEstados_"+ (counter-1)).append("<a type='button' onclick='eliminarPaisEstado(" + (counter-1) + ")' class='btn btn-secondary text-white align-self-end mb-0'><i class='fa fa-trash'></i></a>")
+          $("#sociedad_anonima_paisesEstados_"+ (counter-1)).attr('data-select', counter-1)
+          cargarPaises(counter-1)
+    });
 
         jQuery('.add-another-collection-widget').click(function (e) {
           var list = jQuery(jQuery(this).attr('data-list-selector'));
@@ -161,32 +171,46 @@ $( document ).ready(function() {
           // create a new list element and add it to the list
           var newElem = jQuery(list.attr('data-widget-tags')).html(newWidget);
           newElem.appendTo(list);
-          $("#sociedad_anonima_socios_"+ (counter-1)).addClass('d-flex flex-fill pt-2')
-          $("#sociedad_anonima_socios_"+ (counter-1) + " div").addClass('col-md-3')
+          $("#sociedad_anonima_socios_"+ (counter-1)).addClass('row pt-2')
+          $("#sociedad_anonima_socios_"+ (counter-1) + " div").addClass('col')
           $("#sociedad_anonima_socios_"+ (counter-1)).append("<a type='button' onclick='eliminarSocio(" + (counter-1) + ")' class='btn btn-secondary text-white align-self-end mb-0'><i class='fa fa-trash'></i></a>")
       });
 
-    $('#paises').on('change', function() {
-        $('#estados').find('option')
+    $(document).on('change', '.choice-pais' ,function (e) { 
+        e.preventDefault();
+
+        let id = $(this).parent().parent().attr('data-select');
+        let pais = $(this).val();
+        $("#sociedad_anonima_paisesEstados_"+ id + "_estadoAux").find('option')
             .remove()
             .end()
-            .append('<option>Selecciona un estado</option>')
-        ;
-        $("#sociedad_anonima_pais").val(this.value)
-        cargarEstados(this.value);
+            .append('<option>-- Elegir --</option>');
+        $("#sociedad_anonima_paisesEstados_"+ id + "_pais").val(pais)
+        cargarEstados(pais, id);
     });
 
-        $("#sociedad_anonima_estado").change(function (e) { 
-            e.preventDefault();
-            $("#sociedad_anonima_estado").val(this.value) 
-        });
+        $(document).on('change', '.choice-estado' ,function (e) { 
+        e.preventDefault();
+
+        let id = $(this).parent().parent().attr('data-select');
+        let estado = $(this).val();
+        console.log(id, estado)
+        $("#sociedad_anonima_paisesEstados_"+ id + "_estado").val(estado)
     });
+
+
+    });
+
+    function eliminarPaisEstado(id){
+         $("#sociedad_anonima_paisesEstados_" + id).remove();
+    }
 
     function eliminarSocio(id){
          $("#sociedad_anonima_socios_" + id).remove();
     }
 
-    function cargarPaises() {
+    function cargarPaises(id) {
+        let select = id;
         $.ajax({
             url: "https://countries.trevorblades.com/",
             contentType: "application/json",
@@ -203,12 +227,13 @@ $( document ).ready(function() {
 
             $.each(result.data.countries, function(i, obj) {
                 var div_data="<option value="+obj.code+">"+obj.name+"</option>";
-                $(div_data).appendTo('#paises'); 
+                $(div_data).appendTo("#sociedad_anonima_paisesEstados_" + select + "_paisAux"); 
             });  
         }});
     }
 
-    function cargarEstados(codigoPais) {
+    function cargarEstados(codigoPais, id) {
+        let select = id;
         $.ajax({
             url: "https://countries.trevorblades.com/",
             contentType: "application/json",
@@ -225,8 +250,8 @@ $( document ).ready(function() {
             }),
         success: function(result) {
             $.each(result.data.country.states, function(i, obj) {
-                var div_data="<option value="+obj.name+">"+obj.name+"</option>";
-                $(div_data).appendTo('#estados'); 
+                var div_data="<option value='"+obj.name+"'>"+obj.name+"</option>";
+                $(div_data).appendTo('#sociedad_anonima_paisesEstados_' + id + '_estadoAux'); 
             });  
         }});
     }
