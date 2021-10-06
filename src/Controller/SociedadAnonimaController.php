@@ -155,12 +155,18 @@ class SociedadAnonimaController extends AbstractController
     }
 
     function completar_solicitud($nombre, $domicilioReal, $domicilioLegal, $mail, $estatuto){
-        Access::login();
-        Process::setVariable($_SESSION['taskId'], 'nombre', $nombre, 'String');
-        Process::setVariable($_SESSION['taskId'], 'domicilioReal', $domicilioReal, 'String');
-        Process::setVariable($_SESSION['taskId'], 'domicilioLegal', $domicilioLegal, 'String');
-        Process::setVariable($_SESSION['taskId'], 'mail', $mail, 'String');
-        Process::setVariable($_SESSION['taskId'], 'estatuto', $estatuto, 'String');
+        $access = Access::login();
+        $client = $access['client'];
+        $token = $access['token'];
+
+        $_SESSION['processId'] = Process::getProcessId($client, "Proceso de registro de sociedad anonima");
+        $_SESSION['caseId'] = Process::initializeProcess($client, $_SESSION['processId']);
+
+        Process::setVariableByCase($_SESSION['caseId'], 'nombre', $nombre, 'String');
+        Process::setVariableByCase($_SESSION['caseId'], 'domicilioReal', $domicilioReal, 'String');
+        Process::setVariableByCase($_SESSION['caseId'], 'domicilioLegal', $domicilioLegal, 'String');
+        Process::setVariableByCase($_SESSION['caseId'], 'mail', $mail, 'String');
+        //Process::setVariable($_SESSION['caseId'], 'estatuto', $estatuto, 'String');
         // Process::setVariable($_SESSION['taskId'], 'nombre', $nombre, 'String');
         // Process::setVariable($_SESSION['taskId'], 'nombre', $nombre, 'String');
         // Process::setVariable($_SESSION['taskId'], 'nombre', $nombre, 'String');

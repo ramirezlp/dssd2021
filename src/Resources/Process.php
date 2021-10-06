@@ -2,26 +2,33 @@
 
 namespace App\Resources;
 
+use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\Request;
 use Symfony\Component\HttpClient\HttpClient;
 
 class Process
 {
-    public static function intiateProcess($id){
-        $client = HttpClient::create();
-        $response = $client->request('POST', 'API/bpm/process'.$id.'instantiation');
-        return $response;
+
+    public static function initializeProcess($client, $id){
+        $resp = $client->post('http://localhost:8080/bonita/API/bpm/process/'.$id.'/instantiation');
+        $json = json_decode($resp->getBody()->getContents())[0];
+        return $json->caseId;
     }
 
-    public static function getProcessId($processName){
-        $$response = Request::doTheRequest('GET', 'API/bpm/process?s='.$processName['data'->id]);
-        return $response;
+    public static function getProcessId($client, $processName){
+
+        $resp = $client->get('http://localhost:8080/bonita/API/bpm/process?s=' . $processName);
+        $json = json_decode($resp->getBody()->getContents())[0];
+
+        return $json->id;
     }
 
+    /*
     public static function setVariable($taskId, $variable, $valor, $tipo){
         $taskId = Request::doTheRequest('GET', 'API/bpm/userTask/'.$taskId);
         $response = Request::doTheRequest('PUT', 'API/bpm/caseVariable/'.$taskId['data']->caseId.'/'.$variable, $variable, $valor, $tipo);
         return $response;
-    }
+    }*/
 
     public static function setVariableByCase($caseId, $variable, $valor, $tipo){
         $response = Request::doTheRequest('PUT', 'API/bom/caseVariable/'.$caseId.'/'.$variable, $variable, $valor, $tipo);
