@@ -34,7 +34,7 @@ class SocioType extends AbstractType
                 TextType::class,
                 array(
                     'required' => true,
-                    'label' => 'Nombre',
+                    'label' => 'Nombre *',
                     'attr' => array(
                         'class' => 'form-control',
                         'placeholder' => 'Escriba un nombre.',
@@ -46,7 +46,7 @@ class SocioType extends AbstractType
                 TextType::class,
                 array(
                     'required' => true,
-                    'label' => 'Apellido',
+                    'label' => 'Apellido *',
                     'attr' => array(
                         'class' => 'form-control',
                         'placeholder' => 'Escriba un apellido.',
@@ -61,8 +61,8 @@ class SocioType extends AbstractType
                         'Si' => true,
                         'No' => false
                     ],
-                    'required' => false,
-                    'label' => '¿Representante legal?',
+                    'required' => true,
+                    'label' => '¿Representante legal? *',
                     'placeholder' => '-- Elegir --',
                     'attr' => array(
                         'class' => 'form-control choice',
@@ -75,9 +75,9 @@ class SocioType extends AbstractType
                 IntegerType::class,
                 array(
                     'required' => true,
-                    'label' => 'Porcentaje de aportes',
+                    'label' => 'Porcentaje de aportes *',
                     'attr' => array(
-                        'class' => 'form-control',
+                        'class' => 'form-control porcentaje',
                         'placeholder' => 'Escriba un porcentaje.',
                         'tabindex' => '5'
                     )

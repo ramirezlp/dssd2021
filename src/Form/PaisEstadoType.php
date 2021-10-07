@@ -31,8 +31,8 @@ class PaisEstadoType extends AbstractType
             'pais',
             TextType::class,
             array(
-                'required' => false,
-                'label' => 'Pais',
+                'required' => true,
+                'label' => 'Pais *',
                 'attr' => array(
                     'class' => 'form-control choice choice-pais d-none',
                     'data-placeholder' => '-- Elegir --',
@@ -44,9 +44,9 @@ class PaisEstadoType extends AbstractType
             ChoiceType::class,
             array(
                 'choices' => $options['choices'],
-                'required' => false,
+                'required' => true,
                 'mapped' => false,
-                'label' => 'Pais',
+                'label' => 'Pais *',
                 'placeholder' => '-- Elegir --',
                 'attr' => array(
                     'class' => 'form-control choice choice-pais',

@@ -38,7 +38,7 @@ class SociedadAnonimaType extends AbstractType
                 TextType::class,
                 array(
                     'required' => true,
-                    'label' => 'Nombre',
+                    'label' => 'Nombre *',
                     'attr' => array(
                         'class' => 'form-control',
                         'placeholder' => 'Escriba un nombre.',
@@ -51,7 +51,7 @@ class SociedadAnonimaType extends AbstractType
                 TextType::class,
                 array(
                     'required' => true,
-                    'label' => 'Domicilio legal',
+                    'label' => 'Domicilio legal *',
                     'attr' => array(
                         'class' => 'form-control',
                         'placeholder' => 'Escriba un domicilio.',
@@ -64,7 +64,7 @@ class SociedadAnonimaType extends AbstractType
                 TextType::class,
                 array(
                     'required' => true,
-                    'label' => 'Domicilio legal',
+                    'label' => 'Domicilio legal *',
                     'attr' => array(
                         'class' => 'form-control',
                         'placeholder' => 'Escriba un domicilio.',
@@ -77,7 +77,7 @@ class SociedadAnonimaType extends AbstractType
                 EmailType::class,
                 array(
                     'required' => true,
-                    'label' => 'Correo electrónico',
+                    'label' => 'Correo electrónico *',
                     'attr' => array(
                         'class' => 'form-control',
                         'placeholder' => 'Escriba un correo electrónico.',
@@ -111,11 +111,12 @@ class SociedadAnonimaType extends AbstractType
                         'mimeTypesMessage' => 'El tipo de archivo no es válido.',
                     ])
                 ],
-                'label' => 'Estatuto de conformación',
+                'label' => 'Estatuto de conformación *',
                 'label_attr' => array('class' => 'control-label'),
                 'attr' => array(
                     'class' => 'form-control filestyle',
-                    'data-buttonText' => "Examinar"
+                    'data-buttonText' => "Examinar",
+                    'accept' => '.pdf,.odt,.docx'
                 )
             ))
             ->add(
@@ -154,7 +155,10 @@ class SociedadAnonimaType extends AbstractType
             )
             ->add('submit', SubmitType::class, array(
                 'label' => 'Enviar Formulario',
-                'attr' => array('class' => 'btn btn-primary float-right')
+                'attr' => array(
+                    'class' => 'btn btn-primary float-right',
+                    'disabled' => 'true'
+                )
             ))
             ;
     }

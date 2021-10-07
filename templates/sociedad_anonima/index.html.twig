@@ -12,6 +12,7 @@
 
       <div class="starter-template">
         <h1>Registro - Sociedad Anónima</h1>
+        <small class="form-text text-info pb-2">Los campos marcados con (*) son obligatorios</small>
           {{
           form_start(
             form,
@@ -87,7 +88,7 @@
 
         </div>
         <div class="col-md-12 pl-0 mt-3 pr-0">
-              <p class="pb-0 mb-0">Socios</p>
+              <p class="pb-0 mb-0">Socios *</p>
               {# store the prototype on the data-prototype attribute #}
               <div id="socios-fields-list"
                   data-prototype="{{ form_widget(form.socios.vars.prototype)|e }}"
@@ -106,6 +107,7 @@
 
         </div>
           <div class="row justify-content-end pt-3">
+            <small id="porcentajeError" class="form-text text-danger pr-2 pt-1" hidden>El porcentaje de aportes total debe ser inferior al cien porciento</small>
           {{ form_widget(form.submit) }}
           {{ form_widget(form._token) }}
             {{
@@ -123,6 +125,7 @@
 <script>
 $( document ).ready(function() {
     //cargarPaises();
+
 
         jQuery('.add-another-paisestado-widget').click(function (e) {
           var list = jQuery(jQuery(this).attr('data-list-selector'));
@@ -255,6 +258,28 @@ $( document ).ready(function() {
             });  
         }});
     }
+
+     $(document).on('change', '.porcentaje', function (e) { 
+        var sum = 0;
+        var maxPorcentajeObj;
+        var maxPorcentaje = 0;
+        $('.porcentaje').each(function(index, element){
+            sum = parseInt(sum) + parseInt($(element).val());
+            if (parseInt($(element).val()) > parseint(maxPorcentaje)){
+                maxPorcentajeObj = $(this);
+            }
+        });
+
+        if (sum > 100) {
+            $('#porcentajeError').attr("hidden", false);
+            $('#sociedad_anonima_submit').attr("disabled", true);
+        }
+        else {
+            $('#porcentajeError').attr("hidden", true);
+            $('#sociedad_anonima_submit').attr("disabled", false);
+        }
+        maxPorcentajeObj.find('')
+    });
 
 </script>
 {% endblock %}
