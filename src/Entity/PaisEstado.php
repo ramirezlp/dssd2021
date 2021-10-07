@@ -20,7 +20,7 @@ class PaisEstado
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $pais;
 
@@ -30,7 +30,8 @@ class PaisEstado
     private $estado;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\SociedadAnonima", inversedBy="paisesEstados")
+     * @var \Doctrine\Common\Collections\Collection|SociedadAnonima[]
+     * @ORM\ManyToMany(targetEntity="App\Entity\SociedadAnonima", mappedBy="paisesEstados", cascade={"persist"})
      */
     private $sociedades;
 

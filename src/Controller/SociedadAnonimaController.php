@@ -2,20 +2,21 @@
 
 namespace App\Controller;
 
+use Exception;
+use App\Resources\Access;
 use App\Entity\PaisEstado;
+use App\Resources\Process;
 use App\Entity\SociedadAnonima;
 use App\Form\SociedadAnonimaType;
 use App\Entity\SociedadAnonimaSocio;
-use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
-use App\Resources\Access;
-use App\Resources\Process;
 
 class SociedadAnonimaController extends AbstractController
 {
@@ -133,6 +134,7 @@ class SociedadAnonimaController extends AbstractController
             // $entityManager->flush();
 
             $sociedadAnonima = new SociedadAnonima();
+            $form = $this->createForm(SociedadAnonimaType::class, $sociedadAnonima);
 
             $this->addFlash(
                 'success',
@@ -142,11 +144,26 @@ class SociedadAnonimaController extends AbstractController
 
             return $this->redirectToRoute('sociedad_anonima');
         }else{
+
             if($form->isSubmitted() && ! $form->isValid()){
-                $this->addFlash(
-                    'danger',
-                    'Ocurrió un error en la carga de la SA.'
-                );
+                foreach($form->getErrors(true, false) as $error)
+                {
+                    // Do stuff with:
+                    //   $error->getPropertyPath() : the field that caused the error
+                    try{
+                        $current = $error->current();
+                        $message = $error->current()->getMessage();
+                        $this->addFlash(
+                            'danger',
+                            $message
+                        );
+                    }catch(Exception $e){
+                        echo $e;
+                    }
+                }
+
+                $sociedadAnonima = new SociedadAnonima();
+                $form = $this->createForm(SociedadAnonimaType::class, $sociedadAnonima);
             }
         }
 
