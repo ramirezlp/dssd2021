@@ -155,7 +155,7 @@ $( document ).ready(function() {
           cargarPaises(counter-1)
     });
 
-        agregarSocio($('.add-another-collection-widget')[0])
+        agregarSocio($('.add-another-collection-widget')[0], true)
 
         jQuery('.add-another-collection-widget').click(function (e) {
             agregarSocio(this);
@@ -186,7 +186,7 @@ $( document ).ready(function() {
 
     });
 
-    function agregarSocio(elemento){
+    function agregarSocio(elemento, primerSocio=false){
         var list = jQuery(jQuery(elemento).attr('data-list-selector'));
           // Try to find the counter of the list or use the length of the list
           var counter = list.data('widget-counter') || list.children().length;
@@ -207,7 +207,11 @@ $( document ).ready(function() {
           newElem.appendTo(list);
           $("#sociedad_anonima_socios_"+ (counter-1)).addClass('row pt-2')
           $("#sociedad_anonima_socios_"+ (counter-1) + " div").addClass('col')
-          $("#sociedad_anonima_socios_"+ (counter-1)).append("<a type='button' onclick='eliminarSocio(" + (counter-1) + ")' class='btn btn-secondary text-white align-self-end mb-0'><i class='fa fa-trash'></i></a>")
+          $('#sociedad_anonima_socios_'+ (counter-1) + "_esRepresentanteLegal").parent().append("<small class='form-text text-danger porcentajeError d-none'>Apoderado recomendado</small>")
+          if (!primerSocio)
+            $("#sociedad_anonima_socios_"+ (counter-1)).append("<a type='button' onclick='eliminarSocio(" + (counter-1) + ")' class='btn btn-secondary text-white align-self-end mb-0'><i class='fa fa-trash'></i></a>")
+          else
+            $("#sociedad_anonima_socios_"+ (counter-1)).append("<a type='button' onclick='eliminarSocio(" + (counter-1) + ")' class='btn btn-secondary text-white align-self-end mb-0 disabled'><i class='fa fa-trash'></i></a>")
      
     }
 
@@ -270,9 +274,14 @@ $( document ).ready(function() {
         var sum = 0;
         var maxPorcentajeObj;
         var maxPorcentaje = 0;
+        $('.porcentajeError').each(function(index, element){
+            $(this).addClass("d-none");
+        });
         $('.porcentaje').each(function(index, element){
-            sum = parseInt(sum) + parseInt($(element).val());
-            if (parseInt($(element).val()) > parseint(maxPorcentaje)){
+            if (element.value != '')
+                sum = parseInt(sum) + parseInt($(element).val());
+            if (parseInt($(element).val()) > parseInt(maxPorcentaje)){
+                maxPorcentaje = parseInt($(element).val());
                 maxPorcentajeObj = $(this);
             }
         });
@@ -285,7 +294,7 @@ $( document ).ready(function() {
             $('#porcentajeError').attr("hidden", true);
             $('#sociedad_anonima_submit').attr("disabled", false);
         }
-        maxPorcentajeObj.find('')
+        maxPorcentajeObj.parent().parent().find('small').removeClass('d-none');
     });
 
 </script>
