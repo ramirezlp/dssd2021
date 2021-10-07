@@ -40,11 +40,12 @@ class Access
             
             $token = $cookieJar->getCookieByName('X-Bonita-API-Token');
             $_SESSION['X-Bonita-API-Token'] = $token->getValue();
-
+            $_SESSION['cookie'] = $cookieJar;
             $_SESSION['user_bonita'] = $user;
             $_SESSION['password_bonita'] = $password;
             $_SESSION['base_uri_bonita'] = $base_uri;
             $_SESSION['logged'] = true;
+            $_SESSION['client'] = $client;
 
             return array('client' => $client, 'token' => $token->getValue());
         } catch (Exception $e) {

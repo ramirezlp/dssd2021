@@ -123,6 +123,9 @@ class SociedadAnonimaController extends AbstractController
             $em->persist($sociedadAnonima);
             $em->flush();
 
+            $this->completar_solicitud($sociedadAnonima->getNombre(),$sociedadAnonima->getDomicilioReal(),$sociedadAnonima->getDomicilioLegal(),$sociedadAnonima->getMail(),
+            $sociedadAnonima->getArchivo()); 
+            //falta paises, estados y socios
             // ... perform some action, such as saving the task to the database
             // for example, if Task is a Doctrine entity, save it!
             // $entityManager = $this->getDoctrine()->getManager();
@@ -135,8 +138,7 @@ class SociedadAnonimaController extends AbstractController
                 'success',
                 'Se guardó correctamente la Sociedad Anónima.'
             );
-            $this->completar_solicitud($sociedadAnonima->getNombre(),$sociedadAnonima->getDomicilioReal(),$sociedadAnonima->getDomicilioLegal(),$sociedadAnonima->getMail(),
-            $sociedadAnonima->getArchivo()); //falta paises, estados y socios
+
 
             return $this->redirectToRoute('sociedad_anonima');
         }else{
@@ -159,17 +161,23 @@ class SociedadAnonimaController extends AbstractController
         $client = $access['client'];
         $token = $access['token'];
 
-        $_SESSION['processId'] = Process::getProcessId($client, "Proceso de registro de sociedad anonima");
-        $_SESSION['caseId'] = Process::initializeProcess($client, $_SESSION['processId']);
+        $_SESSION['userId'] = Process::getIdByUsername($_SESSION['user_bonita']);
 
-        Process::setVariableByCase($_SESSION['caseId'], 'nombre', $nombre, 'String');
-        Process::setVariableByCase($_SESSION['caseId'], 'domicilioReal', $domicilioReal, 'String');
-        Process::setVariableByCase($_SESSION['caseId'], 'domicilioLegal', $domicilioLegal, 'String');
-        Process::setVariableByCase($_SESSION['caseId'], 'mail', $mail, 'String');
-        //Process::setVariable($_SESSION['caseId'], 'estatuto', $estatuto, 'String');
+        $_SESSION['processId'] = Process::getProcessId($client, "Proceso de registro de sociedad anonima");
+        $_SESSION['caseId'] = Process::initializeProcess($token, $_SESSION['processId']);
+        $_SESSION['taskId'] = Process::getHumanTaskByCase($_SESSION['caseId'], "Registro de SA");
+
+
+        
+        Process::setVariableByCase($_SESSION['caseId'], 'nombre', $nombre, 'java.lang.String');
+        Process::setVariableByCase($_SESSION['caseId'], 'domicilioReal', $domicilioReal, 'java.lang.String');
+        Process::setVariableByCase($_SESSION['caseId'], 'domicilioLegal', $domicilioLegal, 'java.lang.String');
+        Process::setVariableByCase($_SESSION['caseId'], 'mail', $mail, 'java.lang.String');
+        Process::setVariableByCase($_SESSION['caseId'], 'estatuto', $estatuto, 'java.lang.String');
         // Process::setVariable($_SESSION['taskId'], 'nombre', $nombre, 'String');
         // Process::setVariable($_SESSION['taskId'], 'nombre', $nombre, 'String');
         // Process::setVariable($_SESSION['taskId'], 'nombre', $nombre, 'String');
-        return Process::completeActivity($_SESSION['taskId']);
+        //return Process::completeActivity($_SESSION['taskId']);
+        return true;
     }
 }
