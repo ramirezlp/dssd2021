@@ -26,7 +26,7 @@ class SociedadAnonima
     private $nombre;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", nullable=true)
      */
     private $fechaCreacion;
 
@@ -57,7 +57,18 @@ class SociedadAnonima
     private $socios;
 
     /** 
-     * @ORM\ManyToMany(targetEntity="App\Entity\PaisEstado", mappedBy="sociedades",cascade={"persist"})
+     * @var \Doctrine\Common\Collections\Collection|PaisEstado[]
+     * @ORM\ManyToMany(targetEntity="App\Entity\PaisEstado", inversedBy="sociedades")
+     *
+     * @ORM\JoinTable(
+     *  name="pais_estado_sociedad_anonima",
+     *  joinColumns={
+     *      @ORM\JoinColumn(name="sociedad_anonima_id", referencedColumnName="id")
+     *  },
+     *  inverseJoinColumns={
+     *      @ORM\JoinColumn(name="pais_estado_id", referencedColumnName="id")
+     *  }
+     * )
      */
     private $paisesEstados;
         
@@ -204,7 +215,7 @@ class SociedadAnonima
      *
      * @return  self
      */ 
-    public function setPaisesEstados($paisesEstados)
+    public function setPaisesEstados($paisesEstados): self
     {
         $this->paisesEstados = $paisesEstados;
 

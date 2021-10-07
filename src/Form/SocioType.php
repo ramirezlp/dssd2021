@@ -12,13 +12,14 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\EmailType;
+use Symfony\Component\Form\Extension\Core\Type\RangeType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
-use Symfony\Component\Form\Extension\Core\Type\EmailType;
 
 class SocioType extends AbstractType
 {
@@ -62,7 +63,7 @@ class SocioType extends AbstractType
                         'No' => false
                     ],
                     'required' => false,
-                    'label' => '¿Representante legal?',
+                    'label' => "¿Representante legal?",
                     'placeholder' => '-- Elegir --',
                     'attr' => array(
                         'class' => 'form-control choice',
@@ -76,10 +77,13 @@ class SocioType extends AbstractType
                 array(
                     'required' => true,
                     'label' => 'Porcentaje de aportes',
+
                     'attr' => array(
                         'class' => 'form-control',
                         'placeholder' => 'Escriba un porcentaje.',
-                        'tabindex' => '5'
+                        'tabindex' => '5',
+                        'min' => '0',
+                        'max' => '100',
                     )
                 )
             );

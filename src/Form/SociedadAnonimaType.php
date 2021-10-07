@@ -92,23 +92,10 @@ class SociedadAnonimaType extends AbstractType
                         'maxSize' => '200M',
                         'mimeTypes' => [
                             "application/pdf",
-                            "application/x-pdf",
+                            "application/vnd.oasis.opendocument.text",
                             "application/msword",
-                            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                            "application/vnd.ms-excel",
-                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                            "image/png",
-                            "image/jpeg",
-                            "image/pjpeg",
-                            "application/x-rar",
-                            "application/x-rar-compressed",
-                            "application/octet-stream",
-                            "application/zip",
-                            "application/x-zip-compressed",
-                            "multipart/x-zip",
-                            "text/plain",
                         ],
-                        'mimeTypesMessage' => 'El tipo de archivo no es válido.',
+                        'mimeTypesMessage' => 'El tipo de archivo no es válido. Solo se permite pdf, odt y doc/docx.',
                     ])
                 ],
                 'label' => 'Estatuto de conformación',
@@ -119,23 +106,6 @@ class SociedadAnonimaType extends AbstractType
                 )
             ))
             ->add(
-                'paisesEstados',
-                CollectionType::class,
-                array(
-                    'entry_type' => PaisEstadoType::class,
-                    'allow_delete' => true,
-                    'allow_add' => true,
-                    'label' => 'Paises y estados',
-                    'prototype_name' => '__paisesestados__',
-                    'label_attr' => array(
-                        'class' => 'hidden'
-                    ),
-                    'attr' => array(
-                        'class' => 'hidden'
-                    )
-                )
-            )
-            ->add(
                 'socios',
                 CollectionType::class,
                 array(
@@ -144,6 +114,24 @@ class SociedadAnonimaType extends AbstractType
                     'allow_add' => true,
                     'label' => 'Socios',
                     'prototype_name' => '__socio__',
+                    'label_attr' => array(
+                        'class' => 'hidden'
+                    ),
+                    'attr' => array(
+                        'class' => 'hidden'
+                    )
+                )
+            )->add(
+                'paisesEstados',
+                CollectionType::class,
+                array(
+                    'entry_type' => PaisEstadoType::class,
+                    'allow_delete' => true,
+                    'allow_add' => true,
+                    'by_reference' => false,
+                    'mapped' => false,
+                    'label' => 'Paises y estados',
+                    'prototype_name' => '__paisesestados__',
                     'label_attr' => array(
                         'class' => 'hidden'
                     ),

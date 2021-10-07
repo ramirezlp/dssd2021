@@ -43,7 +43,6 @@ class PaisEstadoType extends AbstractType
             'paisAux',
             ChoiceType::class,
             array(
-                'choices' => $options['choices'],
                 'required' => false,
                 'mapped' => false,
                 'label' => 'Pais',
@@ -71,7 +70,6 @@ class PaisEstadoType extends AbstractType
             'estadoAux',
             ChoiceType::class,
             array(
-                'choices' => $options['choices'],
                 'required' => false,
                 'mapped' => false,
                 'label' => 'Estado',
