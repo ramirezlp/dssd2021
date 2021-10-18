@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Constants\ConstanteEstadoFormulario;
 use Exception;
 use App\Resources\Access;
 use App\Entity\PaisEstado;
@@ -63,6 +64,7 @@ class SociedadAnonimaController extends AbstractController
             $paises = $sociedadAnonima->getPaisesEstados();
 
             $sociedadAnonima->setPaisesEstados(new ArrayCollection());
+            $paisesList = "[";
             $i = 0;
             foreach($paises as $pais){
                 $paisNew = new PaisEstado();
@@ -90,7 +92,16 @@ class SociedadAnonimaController extends AbstractController
                         $i = $i + 1;
                     }
                 }
+
+                if($pais->getPais() != null){
+                    $nombre = $pais->getPais();
+                    $paisesList .= $pais->getPais() . (($pais->getEstado() != null) ? ' - ' . $pais->getEstado() : '') .  ', '; 
+                }
+
             }
+            $paisesList = rtrim($paisesList, ", ");
+            $paisesList .= ']';
+
             if($i == 0){
                 $entity = $em->getRepository(PaisEstado::class)->findOneBy(array('pais' => 'AR', 'estado' => null));
                 if($entity != null){
@@ -106,6 +117,7 @@ class SociedadAnonimaController extends AbstractController
             $socios = $sociedadAnonima->getSocios();
             $sociosNew = [];
 
+            $sociosList = "[";
             foreach($socios as $socio){
                 
                 $saSocio = new SociedadAnonimaSocio();
@@ -117,15 +129,26 @@ class SociedadAnonimaController extends AbstractController
                 $em->persist($saSocio);
                 $em->persist($socio);
                 array_push($sociosNew, $saSocio);
+
+                
+                $sociosList .= $socio->getNombre() . ' - ' . $socio->getApellido() . ', '; 
+                
             }
+            $sociosList = rtrim($sociosList, ", ");
+            $sociosList .= ']';
 
             $sociedadAnonima->setSocios($sociosNew);
+            $sociedadAnonima->setSolicitante($this->getUser());
 
             $em->persist($sociedadAnonima);
             $em->flush();
 
-            $this->completar_solicitud($sociedadAnonima->getNombre(),$sociedadAnonima->getDomicilioReal(),$sociedadAnonima->getDomicilioLegal(),$sociedadAnonima->getMail(),
-            $sociedadAnonima->getArchivo()); 
+            $this->completar_solicitud($sociedadAnonima->getNombre(),
+            $sociedadAnonima->getDomicilioReal(),
+            $sociedadAnonima->getDomicilioLegal(),$sociedadAnonima->getMail(),
+            $sociedadAnonima->getArchivo(), 
+            $paisesList, 
+            $sociosList); 
             //falta paises, estados y socios
             // ... perform some action, such as saving the task to the database
             // for example, if Task is a Doctrine entity, save it!
@@ -141,8 +164,6 @@ class SociedadAnonimaController extends AbstractController
                 'Se guardó correctamente la Sociedad Anónima.'
             );
 
-
-            return $this->redirectToRoute('sociedad_anonima');
         }else{
 
             if($form->isSubmitted() && ! $form->isValid()){
@@ -167,34 +188,104 @@ class SociedadAnonimaController extends AbstractController
             }
         }
 
-        return $this->render('sociedad_anonima/index.html.twig', [
+        return $this->render('sociedad_anonima/registroSA.html.twig', [
             'controller_name' => 'SociedadAnonimaController',
             'form' => $form->createView()
         ]);
     }
 
-    function completar_solicitud($nombre, $domicilioReal, $domicilioLegal, $mail, $estatuto){
+    /**
+     * @Route("/rechazarSA", name="rechazar_sa")
+     */
+    public function rechazarSA(Request $request): Response
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $formulario = $em->getRepository(SociedadAnonima::class)->find($_GET['id']);
+
+        if(isset($_GET['motivo']) && $_GET['motivo'] != ''){
+            $formulario->setMotivoRechazo($_GET['motivo']);
+        }
+        if(isset($_GET['correccion']) && $_GET['correccion'] != ''){
+            $formulario->setPlazoCorreccion($_GET['correccion']);
+        }
+
+        $formulario->setEstado(ConstanteEstadoFormulario::RECHAZADO);
+
+        $em->flush();
+
+        $this->addFlash(
+            'success',
+            'Se rechazó correctamente la Sociedad Anónima.'
+        );
+
+        return $this->redirectToRoute('homepage');
+    }
+
+    /**
+     * @Route("/aprobarSA", name="aprobar_sa")
+     */
+    public function aprobarSA(Request $request): Response
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $formulario = $em->getRepository(SociedadAnonima::class)->find($_GET['id']);
+
+        $formulario->setEstado(ConstanteEstadoFormulario::APROBADO);
+        $formulario->setNumeroExpediente($formulario->getId());
+
+        $em->flush();
+
+        $this->addFlash(
+            'success',
+            'Se aprobó correctamente la Sociedad Anónima.'
+        );
+
+        return $this->redirectToRoute('homepage');
+    }
+        /**
+     * @Route("/verSA", name="ver_sa")
+     */
+    public function verSA(Request $request): Response
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $formulario = $em->getRepository(SociedadAnonima::class)->find($_GET['id']);
+
+
+        return $this->render('sociedad_anonima/detalle.html.twig', [
+            'controller_name' => 'SociedadAnonimaController',
+            'formulario' => $formulario
+        ]);
+    }
+
+
+    function completar_solicitud($nombre, $domicilioReal, $domicilioLegal, $mail, $estatuto, $paisesestados, $socios){
+        
         $access = Access::login();
         $client = $access['client'];
         $token = $access['token'];
-
+        
         $_SESSION['userId'] = Process::getIdByUsername($_SESSION['user_bonita']);
 
         $_SESSION['processId'] = Process::getProcessId($client, "Proceso de registro de sociedad anonima");
         $_SESSION['caseId'] = Process::initializeProcess($token, $_SESSION['processId']);
-        $_SESSION['taskId'] = Process::getHumanTaskByCase($_SESSION['caseId'], "Registro de SA");
+        //$_SESSION['taskId'] = Process::getHumanTaskByCase($_SESSION['caseId'], "Registro de SA");
 
-
-        
         Process::setVariableByCase($_SESSION['caseId'], 'nombre', $nombre, 'java.lang.String');
         Process::setVariableByCase($_SESSION['caseId'], 'domicilioReal', $domicilioReal, 'java.lang.String');
         Process::setVariableByCase($_SESSION['caseId'], 'domicilioLegal', $domicilioLegal, 'java.lang.String');
         Process::setVariableByCase($_SESSION['caseId'], 'mail', $mail, 'java.lang.String');
-        Process::setVariableByCase($_SESSION['caseId'], 'estatuto', $estatuto, 'java.lang.String');
-        // Process::setVariable($_SESSION['taskId'], 'nombre', $nombre, 'String');
-        // Process::setVariable($_SESSION['taskId'], 'nombre', $nombre, 'String');
-        // Process::setVariable($_SESSION['taskId'], 'nombre', $nombre, 'String');
+        Process::setVariableByCase($_SESSION['caseId'], 'archivo', $estatuto, 'java.lang.String');
+        Process::setVariableByCase($_SESSION['caseId'], 'paisesestados', json_encode($paisesestados), 'java.lang.String');
+        Process::setVariableByCase($_SESSION['caseId'], 'socios', json_encode($socios), 'java.lang.String');
+
         //return Process::completeActivity($_SESSION['taskId']);
+        
+
+        unset($_SESSION['cookie']);
+        unset($_SESSION['client']);
+
         return true;
     }
 }

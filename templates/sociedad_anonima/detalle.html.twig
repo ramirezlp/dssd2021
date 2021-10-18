@@ -1,0 +1,137 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Detalle Formulario{% endblock %}
+
+{% block body %}
+       <h1>Detalle - Formulario SA</h1>
+         <div class="form-row">
+            <div class="form-group col-md-4">
+            <label for="inputEmail4">Nombre</label>
+            <input type="email" class="form-control" id="inputEmail4" readonly value="{{formulario.nombre}}" placeholder="Email">
+            </div>
+            <div class="form-group col-md-4">
+            <label for="inputPassword4">Correo electrónico</label>
+            <input type="email" class="form-control" id="inputPassword4" readonly value="{{formulario.mail}}" placeholder="Email">
+            </div>
+            <div class="form-group col-md-4">
+            <label for="inputPassword4">Solicitante</label>
+            <input type="email" class="form-control" id="inputPassword4" readonly value="{{formulario.solicitante.username|default('')}}" placeholder="No seteado">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col">
+                <label for="inputAddress">Domicilio real</label>
+                <input type="email" class="form-control" id="inputAddress" readonly value="{{formulario.domicilioReal}}" placeholder="Email">
+            </div>
+            <div class="form-group col">
+                <label for="inputAddress2">Domicilio legal</label>
+                <input type="email" class="form-control" id="inputAddress2" readonly value="{{formulario.domicilioLegal}}" placeholder="Email">
+            </div>
+        </div>
+        <h3>Socios</h3>
+        {% for socio in formulario.socios %}
+        <div class="form-row">
+            <div class="form-group col-md-3">
+            <label for="inputEmail4">Nombre</label>
+            <input type="email" class="form-control" id="inputEmail4" readonly value="{{socio.socio.nombre}}" placeholder="Email">
+            </div>
+            <div class="form-group col-md-3">
+            <label for="inputEmail4">Apellido</label>
+            <input type="email" class="form-control" id="inputEmail4" readonly value="{{socio.socio.apellido}}" placeholder="Email">
+            </div>
+            <div class="form-group col-md-3">
+            <label for="inputEmail4">¿Es representante legal?</label>
+            <input type="email" class="form-control" id="inputEmail4" readonly value="{% if socio.esRepresentanteLegal %}Si{% else %}No{% endif %}" placeholder="Email">
+            </div>
+            <div class="form-group col-md-3">
+            <label for="inputEmail4">Porcentaje de aporte</label>
+            <input type="email" class="form-control" id="inputEmail4" readonly value="{{socio.porcentajeAporte}}%" placeholder="Email">
+            </div>  
+                
+            
+        </div>
+        {% endfor %}
+        <h3>Paises y estados</h3>
+        {% for paisEstado in formulario.paisesEstados %}
+        <div class="form-row">
+            <div class="form-group col-md-6">
+            <label for="inputEmail4">Pais</label>
+            <input type="email" class="form-control" id="inputEmail4" readonly value="{{paisEstado.pais}}" placeholder="Email">
+            </div>
+            <div class="form-group col-md-6">
+            <label for="inputEmail4">Estado</label>
+            <input type="email" class="form-control" id="inputEmail4" readonly value="{{paisEstado.estado}}" placeholder="Email">
+            </div>
+        </div>
+        {% endfor %}
+        <div class="d-flex justify-content-between">
+        <a type="button" class="btn btn-secondary text-white" href="{{path('homepage')}}">Volver</a>
+        {% if formulario.estado == 'PENDIENTE' %}
+        <div>
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#aprobarModal">Aprobar</button>
+            <button type="button" class="btn btn-danger"  data-toggle="modal" data-target="#rechazarModal">Rechazar</button>
+        </div>
+        {% endif %}
+        </div>
+
+        <!-- Modal -->
+        <div class="modal fade" id="aprobarModal" tabindex="-1" role="dialog" aria-labelledby="aprobarModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="aprobarModalLabel">Aprobar SA</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    ¿Desea aprobar el formulario de esta Sociedad Anónima?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <a type="button" class="btn btn-primary" href="{{path('aprobar_sa', {id : formulario.id})}}">Aprobar</a>
+                </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div class="modal fade" id="rechazarModal" tabindex="-1" role="dialog" aria-labelledby="rechazarModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                
+                <div class="modal-content">
+                <form method="GET" action="{{path('rechazar_sa')}}">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="rechazarModalLabel">Rechazar SA</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    ¿Desea rechazar el formulario de esta Sociedad Anónima?
+                    
+                        <div class="form-group col mt-2">
+                        <label for="motivo">Motivo</label>
+                        <input class="form-control" id="motivo" name="motivo" placeholder="Ingrese el motivo">
+                        </div>
+                        <div class="form-group col">
+                        <label for="correccion">Plazo de corrección</label>
+                        <input type="text" class="form-control" name="correccion" id="correccion"  placeholder="Plazo en días">
+                        </div>
+                        <input type="text" hidden name="id" id="id" value="{{formulario.id}}">
+                    
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary text-white">Rechazar</button>
+                </div>
+                </form>
+                </div>
+                
+            </div>
+            </div>
+{% endblock %}
+
+
+
+

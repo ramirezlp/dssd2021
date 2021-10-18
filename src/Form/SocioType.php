@@ -66,7 +66,7 @@ class SocioType extends AbstractType
                     'label' => '¿Representante legal? *',
                     'placeholder' => '-- Elegir --',
                     'attr' => array(
-                        'class' => 'form-control choice',
+                        'class' => 'form-control choice select-representante',
                         'data-placeholder' => '-- Elegir --',
                         'tabindex' => '5'
                     )

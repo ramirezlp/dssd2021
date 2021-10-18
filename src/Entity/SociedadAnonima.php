@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Entity\User;
 use App\Entity\PaisEstado;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\SociedadAnonimaSocio;
@@ -56,6 +57,26 @@ class SociedadAnonima
      */
     private $socios;
 
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $estado = "PENDIENTE";
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $motivoRechazo = "No ingresado";
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $plazoCorreccion = 10;
+
+    /**
+     * @ORM\Column(type="integer", unique=true, nullable=true)
+     */
+    private $numeroExpediente;
+
     /** 
      * @var \Doctrine\Common\Collections\Collection|PaisEstado[]
      * @ORM\ManyToMany(targetEntity="App\Entity\PaisEstado", inversedBy="sociedades")
@@ -71,6 +92,12 @@ class SociedadAnonima
      * )
      */
     private $paisesEstados;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=User::class)
+     * @ORM\JoinColumn(nullable=true,onDelete="NO ACTION")
+     */
+    private $solicitante;
         
 
     public function __construct(){
@@ -218,6 +245,104 @@ class SociedadAnonima
     public function setPaisesEstados($paisesEstados): self
     {
         $this->paisesEstados = $paisesEstados;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of estado
+     */ 
+    public function getEstado()
+    {
+        return $this->estado;
+    }
+
+    /**
+     * Set the value of estado
+     *
+     * @return  self
+     */ 
+    public function setEstado($estado)
+    {
+        $this->estado = $estado;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of solicitante
+     */ 
+    public function getSolicitante()
+    {
+        return $this->solicitante;
+    }
+
+    /**
+     * Set the value of solicitante
+     *
+     * @return  self
+     */ 
+    public function setSolicitante($solicitante)
+    {
+        $this->solicitante = $solicitante;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of motivoRechazo
+     */ 
+    public function getMotivoRechazo()
+    {
+        return $this->motivoRechazo;
+    }
+
+    /**
+     * Set the value of motivoRechazo
+     *
+     * @return  self
+     */ 
+    public function setMotivoRechazo($motivoRechazo)
+    {
+        $this->motivoRechazo = $motivoRechazo;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of plazoCorreccion
+     */
+    public function getPlazoCorreccion()
+    {
+        return $this->plazoCorreccion;
+    }
+
+    /**
+     * Set the value of plazoCorreccion
+     */
+    public function setPlazoCorreccion($plazoCorreccion): self
+    {
+        $this->plazoCorreccion = $plazoCorreccion;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroExpediente
+     */ 
+    public function getNumeroExpediente()
+    {
+        return $this->numeroExpediente;
+    }
+
+    /**
+     * Set the value of numeroExpediente
+     *
+     * @return  self
+     */ 
+    public function setNumeroExpediente($numeroExpediente)
+    {
+        $this->numeroExpediente = $numeroExpediente;
 
         return $this;
     }

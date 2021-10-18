@@ -22,7 +22,7 @@
             <div class="collapse navbar-collapse" id="navbarsExampleDefault">
                 <ul class="navbar-nav mr-auto">
                 <li class="nav-item active">
-                    <a class="nav-link" href="{{path('sociedad_anonima')}}">Inicio<span class="sr-only">(current)</span></a>
+                    <a class="nav-link" href="{{path('homepage')}}">Inicio<span class="sr-only">(current)</span></a>
                 </li>
                 {#
                 <li class="nav-item">
@@ -47,6 +47,11 @@
                 <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
                 </form>
                 #}
+                {% if is_granted('ROLE_USER') %}
+                <div class="ml-auto text-white"><span class="mr-2">Hola, {{app.user.nombre}}!</span><a href={{path('app_logout')}}>Cerrar Sesión</a></div>
+                {% else %}
+                <div class="ml-auto text-white"><a href={{path('login')}}>Iniciar Sesión</a></div>
+                {% endif %}
             </div>
         </nav>
         <main role="main" class="container">

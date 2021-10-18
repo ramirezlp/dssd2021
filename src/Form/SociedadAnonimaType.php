@@ -129,8 +129,6 @@ class SociedadAnonimaType extends AbstractType
                     'entry_type' => PaisEstadoType::class,
                     'allow_delete' => true,
                     'allow_add' => true,
-                    'by_reference' => false,
-                    'mapped' => false,
                     'label' => 'Paises y estados',
                     'prototype_name' => '__paisesestados__',
                     'label_attr' => array(
