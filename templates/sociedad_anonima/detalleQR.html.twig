@@ -1,0 +1,71 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Detalle Formulario{% endblock %}
+
+{% block body %}
+       <h1>Detalle - Formulario SA</h1>
+         <div class="form-row">
+            <div class="form-group col-md-4">
+            <label for="inputEmail4">Nombre</label>
+            <input type="email" class="form-control" id="inputEmail4" readonly value="{{formulario.nombre}}" >
+            </div>
+            <div class="form-group col-md-4">
+            <label for="inputPassword4">Correo electrónico</label>
+            <input type="email" class="form-control" id="inputPassword4" readonly value="{{formulario.mail}}" >
+            </div>
+            <div class="form-group col-md-4">
+            <label for="inputPassword4">Solicitante</label>
+            <input type="email" class="form-control" id="inputPassword4" readonly value="{{formulario.solicitante.username|default('')}}" placeholder="No seteado">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col">
+                <label for="inputAddress">Domicilio real</label>
+                <input type="email" class="form-control" id="inputAddress" readonly value="{{formulario.domicilioReal}}" >
+            </div>
+            <div class="form-group col">
+                <label for="inputAddress2">Domicilio legal</label>
+                <input type="email" class="form-control" id="inputAddress2" readonly value="{{formulario.domicilioLegal}}" >
+            </div>
+        </div>
+        <h3>Socios</h3>
+        {% for socio in formulario.socios %}
+        <div class="form-row">
+            <div class="form-group col-md-3">
+            <label for="inputEmail4">Nombre</label>
+            <input type="email" class="form-control" id="inputEmail4" readonly value="{{socio.socio.nombre}}" >
+            </div>
+            <div class="form-group col-md-3">
+            <label for="inputEmail4">Apellido</label>
+            <input type="email" class="form-control" id="inputEmail4" readonly value="{{socio.socio.apellido}}" >
+            </div>
+            <div class="form-group col-md-3">
+            <label for="inputEmail4">¿Es representante legal?</label>
+            <input type="email" class="form-control" id="inputEmail4" readonly value="{% if socio.esRepresentanteLegal %}Si{% else %}No{% endif %}" >
+            </div>
+            <div class="form-group col-md-3">
+            <label for="inputEmail4">Porcentaje de aporte</label>
+            <input type="email" class="form-control" id="inputEmail4" readonly value="{{socio.porcentajeAporte}}%" placeholder="">
+            </div>  
+                
+            
+        </div>
+        {% endfor %}
+        <h3>Paises y estados</h3>
+        {% for paisEstado in formulario.paisesEstados %}
+        <div class="form-row">
+            <div class="form-group col-md-6">
+            <label for="inputEmail4">Pais</label>
+            <input type="email" class="form-control" id="inputEmail4" readonly value="{{paisEstado.pais}}" placeholder="">
+            </div>
+            <div class="form-group col-md-6">
+            <label for="inputEmail4">Estado</label>
+            <input type="email" class="form-control" id="inputEmail4" readonly value="{{paisEstado.estado}}" placeholder="">
+            </div>
+        </div>
+        {% endfor %}
+{% endblock %}
+
+
+
+

@@ -47,6 +47,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     private $apellido;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $bonitaUserId;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $bonitaUser;
+
+        /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $bonitaPass;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -167,6 +182,35 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setApellido($apellido)
     {
         $this->apellido = $apellido;
+
+        return $this;
+    }
+
+    public function getBonitaUser(){
+        return $this->bonitaUser;
+    }
+
+    public function getBonitaPass(){
+        return $this->bonitaPass;
+    }
+
+
+    /**
+     * Get the value of bonitaUserId
+     */ 
+    public function getBonitaUserId()
+    {
+        return $this->bonitaUserId;
+    }
+
+    /**
+     * Set the value of bonitaUserId
+     *
+     * @return  self
+     */ 
+    public function setBonitaUserId($bonitaUserId)
+    {
+        $this->bonitaUserId = $bonitaUserId;
 
         return $this;
     }

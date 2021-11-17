@@ -2,13 +2,14 @@
 
 namespace App\Form;
 
-use App\Controller\SociedadAnonimaController;
+use App\Entity\Socio;
 use App\Form\SocioType;
 use App\Form\PaisEstadoType;
 use App\Entity\SociedadAnonima;
-use App\Entity\SociedadAnonimaSocio;
 use Doctrine\ORM\EntityRepository;
+use App\Entity\SociedadAnonimaSocio;
 use Symfony\Component\Form\AbstractType;
+use App\Controller\SociedadAnonimaController;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Validator\Constraints\File;
@@ -64,7 +65,7 @@ class SociedadAnonimaType extends AbstractType
                 TextType::class,
                 array(
                     'required' => true,
-                    'label' => 'Domicilio legal *',
+                    'label' => 'Domicilio real *',
                     'attr' => array(
                         'class' => 'form-control',
                         'placeholder' => 'Escriba un domicilio.',
@@ -98,6 +99,7 @@ class SociedadAnonimaType extends AbstractType
                         'mimeTypesMessage' => 'El tipo de archivo no es válido. Solo se permite pdf, odt y doc/docx.',
                     ])
                 ],
+                "data_class" => null,
                 'label' => 'Estatuto de conformación *',
                 'label_attr' => array('class' => 'control-label'),
                 'attr' => array(
@@ -110,10 +112,12 @@ class SociedadAnonimaType extends AbstractType
                 'socios',
                 CollectionType::class,
                 array(
-                    'entry_type' => SocioType::class,
+                    'entry_type' => SociedadAnonimaSocioType::class,
                     'allow_delete' => true,
                     'allow_add' => true,
+                    'by_reference' => false,
                     'label' => 'Socios',
+                    "data_class" => null,
                     'prototype_name' => '__socio__',
                     'label_attr' => array(
                         'class' => 'hidden'

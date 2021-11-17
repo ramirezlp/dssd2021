@@ -24,7 +24,7 @@
           )
         }}
         <div class="row pt-2">
-          <div class="col-md-4">
+          <div class="col">
               <div class="form-group">
                   {{ form_label(form.nombre) }}
                   <div class="form_field">
@@ -32,7 +32,7 @@
                   </div>
               </div>
           </div>
-          <div class="col-md-4">
+          <div class="col">
               <div class="form-group">
                   {{ form_label(form.domicilioLegal) }}
                   <div class="form_field">
@@ -40,7 +40,7 @@
                   </div>
               </div>
           </div>
-          <div class="col-md-4">
+          <div class="col">
               <div class="form-group">
                   {{ form_label(form.domicilioReal) }}
                   <div class="form_field">
@@ -50,7 +50,7 @@
           </div>
         </div>
         <div class="row">
-           <div class="col-md-6">
+           <div class="col">
               <div class="form-group">
                   {{ form_label(form.mail) }}
                   <div class="form_field">
@@ -58,14 +58,34 @@
                   </div>
               </div>
           </div>
-          <div class="col-md-6">
+          <div class="col">
               <div class="form-group">
-                  {{ form_label(form.archivo) }}
-                  <div class="form_field">
-                      {{ form_widget(form.archivo) }}
+                {% if edit
+                and form.vars.value.archivo is not null %}
+                    <div class="d-flex flex-wrap justify-content-between">
+                            {{ form_label(form.archivo) }}
+                
+                        <a class="download-link font-xs"
+                            target="_blank"
+                            href="{{
+                            asset(
+                            'uploads/'
+                                ~ form.vars.value.archivo
+                            )
+                            }}">
+                            Archivo actual: {{form.vars.value.archivo|slice(0, 15)}}...
+                        </a>
+                    </div>
+                    {% else %}
+                        {{ form_label(form.archivo) }}
+                    {% endif %}
+                    
+                        {{ form_widget(form.archivo) }}
+                    
+                      
                   </div>
               </div>
-          </div>
+          
 
         </div>
         <div class="col-md-12 pl-0 pr-0">
@@ -75,11 +95,24 @@
                   data-prototype="{{ form_widget(form.paisesEstados.vars.prototype)|e }}"
                   data-widget-tags="{{ "<div></div>"|e }}"
                   data-widget-counter="{{ form.paisesEstados|length }}">
+                
+              {% set i = 0 %}
               {% for paisEstado in form.paisesEstados %}
-                  <div class="row">
+                  <div id="sociedad_anonima_paisesEstados_{{i}}" class="row" data-select="{{i}}">
                       {{ form_errors(paisEstado) }}
-                      {{ form_widget(paisEstado) }}
+                      <div class="col">
+                                {{ form_label(paisEstado.paisAux)}}
+                                {{ form_widget(paisEstado.paisAux) }}
+                                {{form_widget(paisEstado.pais)}}
+                      </div>
+                        <div class="col">
+                                {{ form_label(paisEstado.estadoAux)}}
+                                {{ form_widget(paisEstado.estadoAux) }}
+                                {{form_widget(paisEstado.estado)}}
+                      </div>
+                      <a type='button' onclick='eliminarPaisEstado({{i}})' class='btn btn-secondary text-white align-self-end mb-0'><i class='fa fa-trash'></i></a>
                   </div>
+                  {% set i = i + 1 %}
               {% endfor %}
               </div>
               <button type="button"
@@ -94,11 +127,49 @@
                   data-prototype="{{ form_widget(form.socios.vars.prototype)|e }}"
                   data-widget-tags="{{ "<div></div>"|e }}"
                   data-widget-counter="{{ form.socios|length }}">
+              {% set i = 0 %}
               {% for socioField in form.socios %}
-                  <div class="row">
+                  <div id="sociedad_anonima_socios_{{i}}" class="row {% if loop.first %}mt-2{% else %}mt-1{% endif %}">
                       {{ form_errors(socioField) }}
-                      {{ form_widget(socioField) }}
+                      <div class="col-md-6 row">
+                      {% if loop.first %}
+                            <div class="col">
+                                {{ form_label(socioField.socio.nombre)}}
+                                {{ form_widget(socioField.socio.nombre, {'attr': {'readonly': true}}) }}
+                            </div>
+                            <div class="col">
+                                {{ form_label(socioField.socio.apellido)}}
+                                {{ form_widget(socioField.socio.apellido, {'attr': {'readonly': true}}) }}
+                            </div>
+                      {% else %}
+                            <div class="col">
+                            {{ form_label(socioField.socio.nombre)}}
+                            {{ form_widget(socioField.socio.nombre) }}
+                            </div>
+                            <div class="col">
+                                {{ form_label(socioField.socio.apellido)}}
+                                {{ form_widget(socioField.socio.apellido) }}
+                            </div>
+                      {% endif %}
+                      </div>
+                      <div class="col">
+                        {{ form_label(socioField.esRepresentanteLegal)}}
+                        {{ form_widget(socioField.esRepresentanteLegal, {'attr': {'class': 'form-control select-representante'}})}}
+                        <small class='form-text text-danger porcentajeError d-none'>Apoderado recomendado</small>
+                      </div>
+                      <div class="col">
+                      
+                        {{ form_label(socioField.porcentajeAporte)}}
+                        {{ form_widget(socioField.porcentajeAporte, {'attr': {'class': 'form-control porcentaje'}})}}
+                      </div>
+                      {% if loop.first %}
+                            <a type='button' onclick='eliminarSocio({{i}})' class='btn btn-secondary text-white align-self-end mb-0 disabled'><i class='fa fa-trash'></i></a>
+                      {% else %}
+                            <a type='button' onclick='eliminarSocio({{i}})' class='btn btn-secondary text-white align-self-end mb-0'><i class='fa fa-trash'></i></a>
+                      {% endif %}
+                      
                   </div>
+                  {% set i = i + 1 %}
               {% endfor %}
               </div>
               <button type="button"
@@ -124,12 +195,8 @@
 {% block javascripts %}
 {{parent()}}
 <script>
-$( document ).ready(function() {
-    //cargarPaises();
-
-
-        jQuery('.add-another-paisestado-widget').click(function (e) {
-          var list = jQuery(jQuery(this).attr('data-list-selector'));
+    function agregarSocio(elemento, primerSocio=false){
+        var list = jQuery(jQuery(elemento).attr('data-list-selector'));
           // Try to find the counter of the list or use the length of the list
           var counter = list.data('widget-counter') || list.children().length;
 
@@ -138,7 +205,7 @@ $( document ).ready(function() {
           // replace the "__name__" used in the id and name of the prototype
           // with a number that's unique to your emails
           // end name attribute looks like name="contact[emails][2]"
-          newWidget = newWidget.replace(/__paisesestados__/g, counter);
+          newWidget = newWidget.replace(/__socio__/g, counter);
           // Increase the counter
           counter++;
           // And store it, the length cannot be used if deleting widgets is allowed
@@ -147,50 +214,21 @@ $( document ).ready(function() {
           // create a new list element and add it to the list
           var newElem = jQuery(list.attr('data-widget-tags')).html(newWidget);
           newElem.appendTo(list);
-          $("#sociedad_anonima_paisesEstados_"+ (counter-1)).addClass('row pt-2')
-          $("#sociedad_anonima_paisesEstados_"+ (counter-1) + " div").addClass('col')
-          $("#sociedad_anonima_paisesEstados_"+ (counter-1) +"_pais").parent().addClass('d-none')
-          $("#sociedad_anonima_paisesEstados_"+ (counter-1) +"_estado").parent().addClass('d-none')
-          $("#sociedad_anonima_paisesEstados_"+ (counter-1)).append("<a type='button' onclick='eliminarPaisEstado(" + (counter-1) + ")' class='btn btn-secondary text-white align-self-end mb-0'><i class='fa fa-trash'></i></a>")
-          $("#sociedad_anonima_paisesEstados_"+ (counter-1)).attr('data-select', counter-1)
-          cargarPaises(counter-1)
-    });
+          $("#sociedad_anonima_socios_"+ (counter-1)).addClass('row pt-2')
+          $("#sociedad_anonima_socios_"+ (counter-1) + " div").addClass('col')
+          var socio = $("#sociedad_anonima_socios_"+ (counter-1) + "_socio").clone();
+          $("#sociedad_anonima_socios_"+ (counter-1)).find('div:first').remove();
+          $("#sociedad_anonima_socios_"+ (counter-1)).prepend(socio);
+          $("#sociedad_anonima_socios_"+ (counter-1) + "_socio").addClass('row col-md-6');
+          $('#sociedad_anonima_socios_'+ (counter-1) + "_esRepresentanteLegal").parent().append("<small class='form-text text-danger porcentajeError d-none'>Apoderado recomendado</small>")
+          if (!primerSocio)
+            $("#sociedad_anonima_socios_"+ (counter-1)).append("<a type='button' onclick='eliminarSocio(" + (counter-1) + ")' class='btn btn-secondary text-white align-self-end mb-0'><i class='fa fa-trash'></i></a>")
+          else
+            $("#sociedad_anonima_socios_"+ (counter-1)).append("<a type='button' onclick='eliminarSocio(" + (counter-1) + ")' class='btn btn-secondary text-white align-self-end mb-0 disabled'><i class='fa fa-trash'></i></a>")
+     
+    }
 
-        agregarSocio($('.add-another-collection-widget')[0], true)
-
-        $("#sociedad_anonima_socios_0_nombre").prop('readonly',true);
-        $("#sociedad_anonima_socios_0_apellido").prop('readonly',true);
-        $("#sociedad_anonima_socios_0_nombre").val("{{app.user.nombre}}")
-        $("#sociedad_anonima_socios_0_apellido").val("{{app.user.apellido}}")
-
-        jQuery('.add-another-collection-widget').click(function (e) {
-            agregarSocio(this);
-        });
-
-    $(document).on('change', '.choice-pais' ,function (e) { 
-        e.preventDefault();
-
-        let id = $(this).parent().parent().attr('data-select');
-        let pais = $(this).val();
-        $("#sociedad_anonima_paisesEstados_"+ id + "_estadoAux").find('option')
-            .remove()
-            .end()
-            .append('<option>-- Elegir --</option>');
-        $("#sociedad_anonima_paisesEstados_"+ id + "_pais").val(pais)
-        cargarEstados(pais, id);
-    });
-
-    
-        $(document).on('change', '.choice-estado' ,function (e) { 
-        e.preventDefault();
-
-        let id = $(this).parent().parent().attr('data-select');
-        let estado = $(this).val();
-        console.log(id, estado)
-        $("#sociedad_anonima_paisesEstados_"+ id + "_estado").val(estado)
-    });
-
-     $(document).on('change, input', '.porcentaje, .select-representante', function (e) { 
+    function validarSocios(){
         var sum = 0;
         var maxPorcentajeObj;
         var maxPorcentaje = 0;
@@ -242,36 +280,6 @@ $( document ).ready(function() {
         if(maxPorcentajeObj != undefined && maxPorcentajeObj != null){
             maxPorcentajeObj.parent().parent().find('small').removeClass('d-none');
         }
-    });
-    });
-
-    function agregarSocio(elemento, primerSocio=false){
-        var list = jQuery(jQuery(elemento).attr('data-list-selector'));
-          // Try to find the counter of the list or use the length of the list
-          var counter = list.data('widget-counter') || list.children().length;
-
-          // grab the prototype template
-          var newWidget = list.attr('data-prototype');
-          // replace the "__name__" used in the id and name of the prototype
-          // with a number that's unique to your emails
-          // end name attribute looks like name="contact[emails][2]"
-          newWidget = newWidget.replace(/__socio__/g, counter);
-          // Increase the counter
-          counter++;
-          // And store it, the length cannot be used if deleting widgets is allowed
-          list.data('widget-counter', counter);
-
-          // create a new list element and add it to the list
-          var newElem = jQuery(list.attr('data-widget-tags')).html(newWidget);
-          newElem.appendTo(list);
-          $("#sociedad_anonima_socios_"+ (counter-1)).addClass('row pt-2')
-          $("#sociedad_anonima_socios_"+ (counter-1) + " div").addClass('col')
-          $('#sociedad_anonima_socios_'+ (counter-1) + "_esRepresentanteLegal").parent().append("<small class='form-text text-danger porcentajeError d-none'>Apoderado recomendado</small>")
-          if (!primerSocio)
-            $("#sociedad_anonima_socios_"+ (counter-1)).append("<a type='button' onclick='eliminarSocio(" + (counter-1) + ")' class='btn btn-secondary text-white align-self-end mb-0'><i class='fa fa-trash'></i></a>")
-          else
-            $("#sociedad_anonima_socios_"+ (counter-1)).append("<a type='button' onclick='eliminarSocio(" + (counter-1) + ")' class='btn btn-secondary text-white align-self-end mb-0 disabled'><i class='fa fa-trash'></i></a>")
-     
     }
 
     function eliminarPaisEstado(id){
@@ -280,10 +288,13 @@ $( document ).ready(function() {
 
     function eliminarSocio(id){
          $("#sociedad_anonima_socios_" + id).remove();
+         validarSocios()
     }
 
-    function cargarPaises(id) {
+    function cargarPaises(id, edit=false, pais = '') {
         let select = id;
+        let editar = edit;
+        let paisCode = pais;
         $.ajax({
             url: "https://countries.trevorblades.com/",
             contentType: "application/json",
@@ -297,16 +308,20 @@ $( document ).ready(function() {
                         }`
             }),
         success: function(result) {
-
             $.each(result.data.countries, function(i, obj) {
                 var div_data="<option value="+obj.code+">"+obj.name+"</option>";
                 $(div_data).appendTo("#sociedad_anonima_paisesEstados_" + select + "_paisAux"); 
             });  
+            if(editar){
+                $("#sociedad_anonima_paisesEstados_" + select + "_paisAux").val(paisCode)
+            }
         }});
     }
 
-    function cargarEstados(codigoPais, id) {
+    function cargarEstados(codigoPais, id, edit = false, estado = '') {
         let select = id;
+        let editar = edit;
+        let estadoCode = estado;
         $.ajax({
             url: "https://countries.trevorblades.com/",
             contentType: "application/json",
@@ -326,8 +341,99 @@ $( document ).ready(function() {
                 var div_data="<option value='"+obj.name+"'>"+obj.name+"</option>";
                 $(div_data).appendTo('#sociedad_anonima_paisesEstados_' + id + '_estadoAux'); 
             });  
+            if(edit && estado != ''){
+                $("#sociedad_anonima_paisesEstados_" + select + "_estadoAux").val(estadoCode)
+            }
         }});
     }
+
+$(document).ready(function() {
+    let paisesEstadosLength = parseInt("{{ form.paisesEstados|length }}");
+    console.log(paisesEstadosLength)
+    while(paisesEstadosLength != 0){
+        let pais = $("#sociedad_anonima_paisesEstados_" + (paisesEstadosLength - 1) + "_pais").val().trim()
+        let estado = $("#sociedad_anonima_paisesEstados_" + (paisesEstadosLength - 1) + "_estado").val().trim()
+
+        cargarPaises(paisesEstadosLength - 1, true, pais);
+        cargarEstados(pais, paisesEstadosLength - 1, true, estado)
+        
+        console.log(pais, ' pais')
+        console.log(estado, 'estado')
+        paisesEstadosLength -= 1;
+    }
+    validarSocios()
+
+      jQuery('.add-another-paisestado-widget').click(function (e) {
+          var list = jQuery(jQuery(this).attr('data-list-selector'));
+          // Try to find the counter of the list or use the length of the list
+          var counter = list.data('widget-counter') || list.children().length;
+
+          // grab the prototype template
+          var newWidget = list.attr('data-prototype');
+          // replace the "__name__" used in the id and name of the prototype
+          // with a number that's unique to your emails
+          // end name attribute looks like name="contact[emails][2]"
+          newWidget = newWidget.replace(/__paisesestados__/g, counter);
+          // Increase the counter
+          counter++;
+          // And store it, the length cannot be used if deleting widgets is allowed
+          list.data('widget-counter', counter);
+
+          // create a new list element and add it to the list
+          var newElem = jQuery(list.attr('data-widget-tags')).html(newWidget);
+          newElem.appendTo(list);
+          $("#sociedad_anonima_paisesEstados_"+ (counter-1)).addClass('row pt-2')
+          $("#sociedad_anonima_paisesEstados_"+ (counter-1) + " div").addClass('col')
+          $("#sociedad_anonima_paisesEstados_"+ (counter-1) +"_pais").parent().addClass('d-none')
+          $("#sociedad_anonima_paisesEstados_"+ (counter-1) +"_estado").parent().addClass('d-none')
+          $("#sociedad_anonima_paisesEstados_"+ (counter-1)).append("<a type='button' onclick='eliminarPaisEstado(" + (counter-1) + ")' class='btn btn-secondary text-white align-self-end mb-0'><i class='fa fa-trash'></i></a>")
+          $("#sociedad_anonima_paisesEstados_"+ (counter-1)).attr('data-select', counter-1)
+          cargarPaises(counter-1)
+    });
+
+        {% if not edit %}
+            agregarSocio($('.add-another-collection-widget')[0], true)
+
+            $("#sociedad_anonima_socios_0_socio_nombre").prop('readonly',true);
+            $("#sociedad_anonima_socios_0_socio_apellido").prop('readonly',true);
+            $("#sociedad_anonima_socios_0_socio_nombre").val("{{app.user.nombre}}")
+            $("#sociedad_anonima_socios_0_socio_apellido").val("{{app.user.apellido}}")
+        {% else %}
+            $("#sociedad_anonima_archivo").prop('required', false)
+        {% endif %}
+
+        jQuery('.add-another-collection-widget').click(function (e) {
+            agregarSocio(this);
+        });
+
+    $(document).on('change', '.choice-pais' ,function (e) { 
+        e.preventDefault();
+        console.log('cambia pais')
+        let id = $(this).parent().parent().attr('data-select');
+        let pais = $(this).val();
+        $("#sociedad_anonima_paisesEstados_"+ id + "_estadoAux").find('option')
+            .remove()
+            .end()
+            .append('<option>-- Elegir --</option>');
+        $("#sociedad_anonima_paisesEstados_"+ id + "_pais").val(pais)
+        cargarEstados(pais, id);
+    });
+
+    
+        $(document).on('change', '.choice-estado' ,function (e) { 
+        e.preventDefault();
+
+        let id = $(this).parent().parent().attr('data-select');
+        let estado = $(this).val();
+        $("#sociedad_anonima_paisesEstados_"+ id + "_estado").val(estado)
+    });
+
+     $(document).on('change, input', '.porcentaje, .select-representante', function (e) { 
+        validarSocios()
+      });
+});
+
+
 
 
 

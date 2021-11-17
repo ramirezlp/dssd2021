@@ -6,7 +6,9 @@ use App\Entity\User;
 use App\Entity\PaisEstado;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\SociedadAnonimaSocio;
+use App\Form\SociedadAnonimaSocioType;
 use App\Repository\SociedadAnonimaRepository;
+use Symfony\Component\HttpFoundation\File\File;
 use Doctrine\Common\Collections\ArrayCollection;
 
 /**
@@ -53,7 +55,7 @@ class SociedadAnonima
     private $archivo;
 
     /**
-     * @ORM\OneToMany(targetEntity=SociedadAnonimaSocio::class, mappedBy="sociedadAnonima")
+     * @ORM\OneToMany(targetEntity=SociedadAnonimaSocio::class, mappedBy="sociedadAnonima", orphanRemoval=true, cascade={"persist", "remove"})
      */
     private $socios;
 
@@ -70,12 +72,28 @@ class SociedadAnonima
     /**
      * @ORM\Column(type="integer")
      */
-    private $plazoCorreccion = 10;
+    private $plazoCorreccion = 0;
 
     /**
      * @ORM\Column(type="integer", unique=true, nullable=true)
      */
     private $numeroExpediente;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $caseId;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $hash;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $qr;
+
 
     /** 
      * @var \Doctrine\Common\Collections\Collection|PaisEstado[]
@@ -221,6 +239,22 @@ class SociedadAnonima
         return $this->paisesEstados;
     }
 
+    public function addSocio(SociedadAnonimaSocio $socio): self
+    {
+        if (!$this->socios->contains($socio)) {
+            $this->socios[] = $socio;
+            $socio->setSociedadAnonima($this);
+        }
+        return $this;
+    }
+    public function removeSocio(SociedadAnonimaSocio $socio): self
+    {
+        if ($this->socios->removeElement($socio)) {
+            $socio->setSociedadAnonima($this);
+        }
+        return $this;
+    }
+
     public function addPaisesEstados(PaisEstado $paisEstado): self
     {
         if (!$this->paisesEstados->contains($paisEstado)) {
@@ -343,6 +377,62 @@ class SociedadAnonima
     public function setNumeroExpediente($numeroExpediente)
     {
         $this->numeroExpediente = $numeroExpediente;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of caseId
+     */ 
+    public function getCaseId()
+    {
+        return $this->caseId;
+    }
+
+    /**
+     * Set the value of caseId
+     *
+     * @return  self
+     */ 
+    public function setCaseId($caseId)
+    {
+        $this->caseId = $caseId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of hash
+     */
+    public function getHash()
+    {
+        return $this->hash;
+    }
+
+    /**
+     * Set the value of hash
+     */
+    public function setHash($hash): self
+    {
+        $this->hash = $hash;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of qr
+     */
+    public function getQr()
+    {
+        return $this->qr;
+    }
+
+    /**
+     * Set the value of qr
+     */
+    public function setQr($qr): self
+    {
+        $this->qr = $qr;
 
         return $this;
     }

@@ -11,7 +11,8 @@
             <tr>
             <th scope="col">Nombre SA</th>
             <th scope="col">Correo electrónico</th>
-            <th scope="col">Solicitante</th>
+            <th scope="col">Estado</th>
+            <th scope="col">Corrección</th>
             <th scope="col">Acciones</th>
             </tr>
         </thead>
@@ -20,8 +21,10 @@
                 <tr>
                     <td>{{pendiente.nombre}}</td>
                     <td>{{pendiente.mail}}</td>
-                    <td>{% if pendiente.solicitante != null %}{{pendiente.solicitante.username}}{% else %}No seteado{% endif %}</td>
-                    <td><a href="{{path('ver_sa', { 'id': pendiente.id })}}" class="btn btn-secondary btn-sm text-white">VER</a></td>
+                    <td>{% if pendiente.estado == 'PENDIENTE' %}Pendiente aprobación{% elseif pendiente.estado == 'PENDIENTE_LEGALES' %}Pendiente legales{% elseif pendiente.estado == 'PENDIENTE_GENERACION_CARPETAS' %}Pendiente generación de carpetas{% else %}<b class="text-danger">Pendiente de retiro de documentación</b>{% endif %}</td>
+                     <td>{% if pendiente.plazoCorreccion == 0%}No{% else %}Si{% endif %}</td>
+                    <td><a href="{{path('ver_sa', { 'id': pendiente.id })}}" class="btn btn-secondary btn-sm text-white">VER</a>
+                    </td>
                 </tr>
             {% endfor %}
         </tbody>
@@ -45,6 +48,32 @@
                     <td>{{aprobado.mail}}</td>
                     <td>{% if aprobado.solicitante != null %}{{aprobado.solicitante.username}}{% else %}No seteado{% endif %}</td>
                     <td><a href="{{path('ver_sa', { 'id': aprobado.id })}}" class="btn btn-secondary btn-sm text-white">VER</a></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        </table>
+                <h5 class="mt-5">Formularios - Pendientes de corrección</h5>
+        <table class="table table-bordered">
+        <thead>
+            <tr>
+            <th scope="col">Nombre SA</th>
+            <th scope="col">Fecha de solicitud</th>
+            <th scope="col">Motivo de rechazo</th>
+            <th scope="col">Plazo de corrección</th>
+            <th scope="col">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pendienteCorreccion in pendientesCorreccion %}
+                <tr>
+                    <td>{{pendienteCorreccion.nombre}}</td>
+                    <td>{{pendienteCorreccion.fechaCreacion|date('d/m/Y')}}</td>
+                    <td>{{pendienteCorreccion.motivoRechazo}}</td>
+                    
+                    <td>{{pendienteCorreccion.plazoCorreccion}} días - <b class="text-warning">CORREGIR</b></td>
+                    <td><a href="{{path('ver_sa', { 'id': pendienteCorreccion.id })}}" class="btn btn-secondary btn-sm text-white">VER</a>
+                    <a href="{{path('sociedad_anonima_edit', { 'id': pendienteCorreccion.id })}}" class="btn btn-secondary btn-sm text-white">EDITAR</a>
+                    </td>
                 </tr>
             {% endfor %}
         </tbody>
@@ -79,7 +108,9 @@
             <tr>
             <th scope="col">Nombre SA</th>
             <th scope="col">Correo electrónico</th>
+            <th scope="col">Estado</th>
             <th scope="col">Solicitante</th>
+            <th scope="col">Corrección</th>
             <th scope="col">Acciones</th>
             </tr>
         </thead>
@@ -88,7 +119,9 @@
                 <tr>
                     <td>{{pendiente.nombre}}</td>
                     <td>{{pendiente.mail}}</td>
-                    <td>{% if pendiente.solicitante != null %}{{pendiente.solicitante.username}}{% else %}No seteado{% endif %}</td>
+                    <td>{% if pendiente.estado == 'PENDIENTE' %}Pendiente aprobación{% elseif pendiente.estado == 'PENDIENTE_LEGALES' %}Pendiente legales{% elseif pendiente.estado == 'PENDIENTE_GENERACION_CARPETAS' %}Pendiente generación de carpetas{% else %}<b class="text-warning">Pendiente de retiro de documentación</b>{% endif %}</td>
+                     <td>{% if pendiente.solicitante != null %}{{pendiente.solicitante.username}}{% else %}No seteado{% endif %}</td>
+                    <td>{% if pendiente.plazoCorreccion == 0%}No{% else %}Si{% endif %}</td>
                     <td><a href="{{path('ver_sa', { 'id': pendiente.id })}}" class="btn btn-secondary btn-sm text-white">VER</a></td>
                 </tr>
             {% endfor %}
@@ -117,13 +150,41 @@
             {% endfor %}
         </tbody>
         </table>
+        <h5 class="mt-5">Formularios - Pendientes de corrección</h5>
+        <table class="table table-bordered">
+        <thead>
+            <tr>
+            <th scope="col">Nombre SA</th>
+            <th scope="col">Fecha de solicitud</th>
+            <th scope="col">Motivo de rechazo</th>
+            <th scope="col">Plazo de corrección</th>
+            <th scope="col">Solicitante</th>
+            <th scope="col">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pendienteCorreccion in pendientesCorreccion %}
+                <tr>
+                    <td>{{pendienteCorreccion.nombre}}</td>
+                    <td>{{pendienteCorreccion.fechaCreacion|date('d/m/Y')}}</td>
+                    <td>{{pendienteCorreccion.motivoRechazo}}</td>
+                    
+                    <td>{{pendienteCorreccion.plazoCorreccion}} días </td>
+                    <td>{% if pendienteCorreccion.solicitante != null %}{{pendienteCorreccion.solicitante.username}}{% else %}No seteado{% endif %}</td>
+                    <td><a href="{{path('ver_sa', { 'id': pendienteCorreccion.id })}}" class="btn btn-secondary btn-sm text-white">VER</a></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        </table>
                 <h5 class="mt-5">Formularios - Rechazados</h5>
         <table class="table table-bordered">
         <thead>
             <tr>
             <th scope="col">Nombre SA</th>
+            <th scope="col">Fecha de solicitud</th>
             <th scope="col">Motivo de rechazo</th>
             <th scope="col">Plazo de corrección</th>
+            <th scope="col">Solicitante</th>
             <th scope="col">Acciones</th>
             </tr>
         </thead>
@@ -131,13 +192,37 @@
             {% for rechazado in rechazados %}
                 <tr>
                     <td>{{rechazado.nombre}}</td>
+                    <td>{{rechazado.fechaCreacion|date('d/m/Y')}}</td>
                     <td>{{rechazado.motivoRechazo}}</td>
                     
-                    <td>{{rechazado.plazoCorreccion}} días</td>
+                    <td>{{rechazado.plazoCorreccion}} días - <b class="text-danger">VENCIDO</b></td>
+                    <td>{% if rechazado.solicitante != null %}{{rechazado.solicitante.username}}{% else %}No seteado{% endif %}</td>
                     <td><a href="{{path('ver_sa', { 'id': rechazado.id })}}" class="btn btn-secondary btn-sm text-white">VER</a></td>
                 </tr>
             {% endfor %}
         </tbody>
         </table>
+    {% elseif is_granted('ROLE_USER') and is_granted('ROLE_LEGALES') %}
+                <h5 class="mt-5">Formularios Pendientes - Area Legales</h5>
+                <table class="table table-bordered mt-5">
+                    <thead>
+                        <tr>
+                        <th scope="col">Nombre SA</th>
+                        <th scope="col">Fecha de solicitud</th>
+                        <th scope="col">Solicitante</th>
+                        <th scope="col">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pendiente in pendientes %}
+                            <tr>
+                                <td>{{pendiente.nombre}}</td>
+                                <td>{{pendiente.fechaCreacion|date('d/m/Y')}}</td>
+                                <td>{% if pendiente.solicitante != null %}{{pendiente.solicitante.username}}{% else %}No seteado{% endif %}</td>
+                                <td><a href="{{path('ver_sa', { 'id': pendiente.id })}}" class="btn btn-secondary btn-sm text-white">VER</a></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+            </table>
     {% endif %}
 {% endblock %}

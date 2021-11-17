@@ -16,9 +16,7 @@ use GuzzleHttp\Client;
 use Symfony\Component\HttpFoundation\Session\Session;
 class Access
 {
-    public static function login(){
-        $user = 'Usuario1';
-        $password = 'bpm';
+    public static function login($user, $password){
         $base_uri = 'http://localhost:8080/bonita/';
 
         

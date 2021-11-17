@@ -7,11 +7,11 @@
          <div class="form-row">
             <div class="form-group col-md-4">
             <label for="inputEmail4">Nombre</label>
-            <input type="email" class="form-control" id="inputEmail4" readonly value="{{formulario.nombre}}" placeholder="Email">
+            <input type="email" class="form-control" id="inputEmail4" readonly value="{{formulario.nombre}}" >
             </div>
             <div class="form-group col-md-4">
             <label for="inputPassword4">Correo electrónico</label>
-            <input type="email" class="form-control" id="inputPassword4" readonly value="{{formulario.mail}}" placeholder="Email">
+            <input type="email" class="form-control" id="inputPassword4" readonly value="{{formulario.mail}}" >
             </div>
             <div class="form-group col-md-4">
             <label for="inputPassword4">Solicitante</label>
@@ -21,11 +21,11 @@
         <div class="form-row">
             <div class="form-group col">
                 <label for="inputAddress">Domicilio real</label>
-                <input type="email" class="form-control" id="inputAddress" readonly value="{{formulario.domicilioReal}}" placeholder="Email">
+                <input type="email" class="form-control" id="inputAddress" readonly value="{{formulario.domicilioReal}}" >
             </div>
             <div class="form-group col">
                 <label for="inputAddress2">Domicilio legal</label>
-                <input type="email" class="form-control" id="inputAddress2" readonly value="{{formulario.domicilioLegal}}" placeholder="Email">
+                <input type="email" class="form-control" id="inputAddress2" readonly value="{{formulario.domicilioLegal}}" >
             </div>
         </div>
         <h3>Socios</h3>
@@ -33,19 +33,19 @@
         <div class="form-row">
             <div class="form-group col-md-3">
             <label for="inputEmail4">Nombre</label>
-            <input type="email" class="form-control" id="inputEmail4" readonly value="{{socio.socio.nombre}}" placeholder="Email">
+            <input type="email" class="form-control" id="inputEmail4" readonly value="{{socio.socio.nombre}}" >
             </div>
             <div class="form-group col-md-3">
             <label for="inputEmail4">Apellido</label>
-            <input type="email" class="form-control" id="inputEmail4" readonly value="{{socio.socio.apellido}}" placeholder="Email">
+            <input type="email" class="form-control" id="inputEmail4" readonly value="{{socio.socio.apellido}}" >
             </div>
             <div class="form-group col-md-3">
             <label for="inputEmail4">¿Es representante legal?</label>
-            <input type="email" class="form-control" id="inputEmail4" readonly value="{% if socio.esRepresentanteLegal %}Si{% else %}No{% endif %}" placeholder="Email">
+            <input type="email" class="form-control" id="inputEmail4" readonly value="{% if socio.esRepresentanteLegal %}Si{% else %}No{% endif %}" >
             </div>
             <div class="form-group col-md-3">
             <label for="inputEmail4">Porcentaje de aporte</label>
-            <input type="email" class="form-control" id="inputEmail4" readonly value="{{socio.porcentajeAporte}}%" placeholder="Email">
+            <input type="email" class="form-control" id="inputEmail4" readonly value="{{socio.porcentajeAporte}}%" placeholder="">
             </div>  
                 
             
@@ -56,23 +56,77 @@
         <div class="form-row">
             <div class="form-group col-md-6">
             <label for="inputEmail4">Pais</label>
-            <input type="email" class="form-control" id="inputEmail4" readonly value="{{paisEstado.pais}}" placeholder="Email">
+            <input type="email" class="form-control" id="inputEmail4" readonly value="{{paisEstado.pais}}" placeholder="">
             </div>
             <div class="form-group col-md-6">
             <label for="inputEmail4">Estado</label>
-            <input type="email" class="form-control" id="inputEmail4" readonly value="{{paisEstado.estado}}" placeholder="Email">
+            <input type="email" class="form-control" id="inputEmail4" readonly value="{{paisEstado.estado}}" placeholder="">
             </div>
         </div>
         {% endfor %}
+        {% if formulario.qr != null and formulario.qr != '' %}
+            <h3>Codigo QR</h3>
+            <img class="m-3" src="/uploads/{{formulario.qr}}" alt="QR">
+        {% endif %}
         <div class="d-flex justify-content-between">
         <a type="button" class="btn btn-secondary text-white" href="{{path('homepage')}}">Volver</a>
-        {% if formulario.estado == 'PENDIENTE' %}
+        {% if (is_granted('ROLE_MESA_ENTRADA') and formulario.estado == 'PENDIENTE') or (is_granted('ROLE_LEGALES') and formulario.estado == 'PENDIENTE_LEGALES') %}
         <div>
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#aprobarModal">Aprobar</button>
             <button type="button" class="btn btn-danger"  data-toggle="modal" data-target="#rechazarModal">Rechazar</button>
         </div>
+        {% elseif (is_granted('ROLE_MESA_ENTRADA') and formulario.estado == 'PENDIENTE_GENERACION_CARPETAS') %}
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#generarCarpetasModal">Generar Carpetas</button>
+        {% elseif (is_granted('ROLE_MESA_ENTRADA') and formulario.estado == 'PENDIENTE_RETIRO_DOCUMENTACION') %}
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#confirmarRetiroDocumentacionModal">Confirmar retiro de documentación</button>
         {% endif %}
         </div>
+
+        {% if (is_granted('ROLE_MESA_ENTRADA') and formulario.estado == 'PENDIENTE_RETIRO_DOCUMENTACION') %}
+                <!-- Modal -->
+        <div class="modal fade" id="confirmarRetiroDocumentacionModal" tabindex="-1" role="dialog" aria-labelledby="confirmarRetiroDocumentacionModal" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmarRetiroDocumentacionModal">Confirmación - Retiro de documentacion de SA</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    ¿Desea confirmar que el apoderado retiró la documentación de esta Sociedad Anónima?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <a type="button" class="btn btn-primary" href="{{path('retiro_documentacion_sa', {id : formulario.id})}}">Confirmar</a>
+                </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if (is_granted('ROLE_MESA_ENTRADA') and formulario.estado == 'PENDIENTE_GENERACION_CARPETAS') %}
+                <!-- Modal -->
+        <div class="modal fade" id="generarCarpetasModal" tabindex="-1" role="dialog" aria-labelledby="generarCarpetasModal" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="generarCarpetasModal">Generar Carpetas SA</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    ¿Desea generar las carpetas de esta Sociedad Anónima?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <a type="button" class="btn btn-primary" href="{{path('generar_carpetas_sa', {id : formulario.id})}}">Generar</a>
+                </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
 
         <!-- Modal -->
         <div class="modal fade" id="aprobarModal" tabindex="-1" role="dialog" aria-labelledby="aprobarModalLabel" aria-hidden="true">
@@ -95,6 +149,7 @@
             </div>
         </div>
 
+        {% if (is_granted('ROLE_MESA_ENTRADA') and formulario.estado == 'PENDIENTE') %}
         <!-- Modal -->
         <div class="modal fade" id="rechazarModal" tabindex="-1" role="dialog" aria-labelledby="rechazarModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
@@ -130,6 +185,28 @@
                 
             </div>
             </div>
+        {% else %}
+        <!-- Modal -->
+        <div class="modal fade" id="rechazarModal" tabindex="-1" role="dialog" aria-labelledby="rechazarModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="rechazarModalLabel">Rechazar SA</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    ¿Desea rechazar el formulario de esta Sociedad Anónima?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <a type="button" class="btn btn-danger" href="{{path('rechazar_sa', {id : formulario.id})}}">Rechazar</a>
+                </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
 {% endblock %}
 
 

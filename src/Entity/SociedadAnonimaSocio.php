@@ -20,13 +20,13 @@ class SociedadAnonimaSocio
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity=SociedadAnonima::class, inversedBy = "socios")
+     * @ORM\ManyToOne(targetEntity=SociedadAnonima::class, inversedBy = "socios",  cascade={"persist"})
      * @ORM\JoinColumn(nullable=false, onDelete="NO ACTION")
      */
     private $sociedadAnonima;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Socio::class, inversedBy = "sociedadesAnonimas")
+     * @ORM\ManyToOne(targetEntity=Socio::class, inversedBy = "sociedadesAnonimas", cascade={"persist"})
      * @ORM\JoinColumn(nullable=false,onDelete="NO ACTION")
      */
     private $socio;

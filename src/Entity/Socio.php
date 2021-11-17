@@ -29,7 +29,7 @@ class Socio
     private $apellido;
 
     /**
-     * @ORM\OneToMany(targetEntity=SociedadAnonimaSocio::class, mappedBy="socio")
+     * @ORM\OneToMany(targetEntity=SociedadAnonimaSocio::class, mappedBy="socio",cascade={"persist", "remove"})
      */
     private $sociedadesAnonimas;
 

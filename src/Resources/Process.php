@@ -68,7 +68,7 @@ class Process
     }
 
     public static function setVariableByCase($caseId, $variable, $valor, $tipo){
-        if($valor == null){
+        if($valor === null){
             return false;
         }
         $json = [
@@ -92,8 +92,9 @@ class Process
     }
 
     public static function getHumanTaskByCase($caseId, $taskName){
-        $response = Process::get('humanTask?f=caseId=' . $caseId . '&f=displayName=' . $taskName);
-        $json = json_decode($response->getContents())[0];
+        $response = Process::get('humanTask?f=name=' . $taskName . '&f=caseId=' . $caseId);
+        $content = json_decode($response->getContents());
+        $json = $content[0];
         return $json->id;
     }
     
@@ -105,7 +106,7 @@ class Process
         $json = [
             "assigned_id" => $userId,
         ];
-        $response = Process::put('userTask/'.$taskId , 
+        $response = Process::put('humanTask/'.$taskId , 
                 $json)->getContents();
         return $response;
     }
@@ -118,7 +119,7 @@ class Process
     //SOLAMENTE FUNCIONA PARA USERTASK PERO NOSOTROS EN EL REGISTRO DEL FORM USAMOS HUMANTASK
     public static function completeActivity($taskId){
 
-        $resp = Process::get("userTask/" . $taskId . "/execution");
+        $resp = Process::post("userTask/" . $taskId . "/execution", []);
         $json = json_decode($resp->getContents());
 
         return $json;

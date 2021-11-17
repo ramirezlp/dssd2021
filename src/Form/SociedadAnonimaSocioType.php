@@ -3,7 +3,9 @@
 namespace App\Form;
 
 use App\Entity\Socio;
+use App\Form\SocioType;
 use Doctrine\ORM\EntityRepository;
+use App\Entity\SociedadAnonimaSocio;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -21,7 +23,7 @@ use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 
-class SocioType extends AbstractType
+class SociedadAnonimaSocioType extends AbstractType
 {
 
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -31,38 +33,47 @@ class SocioType extends AbstractType
 
         $builder
             ->add(
-                'nombre',
-                TextType::class,
+                'socio',
+                SocioType::class,
+                array()
+            )->add(
+                'esRepresentanteLegal',
+                ChoiceType::class,
                 array(
+                    'choices' => [
+                        'Si' => true,
+                        'No' => false
+                    ],
                     'required' => true,
-                    'label' => 'Nombre *',
+                    'label' => '¿Representante legal? *',
+                    'placeholder' => '-- Elegir --',
                     'attr' => array(
-                        'class' => 'form-control',
-                        'placeholder' => 'Escriba un nombre.',
+                        'class' => 'form-control choice select-representante',
+                        'data-placeholder' => '-- Elegir --',
                         'tabindex' => '5'
                     )
                 )
             )->add(
-                'apellido',
-                TextType::class,
+                'porcentajeAporte',
+                IntegerType::class,
                 array(
                     'required' => true,
-                    'label' => 'Apellido *',
+                    'label' => 'Porcentaje de aportes *',
                     'attr' => array(
-                        'class' => 'form-control',
-                        'placeholder' => 'Escriba un apellido.',
-                        'tabindex' => '5'
+                        'class' => 'form-control porcentaje',
+                        'placeholder' => 'Escriba un porcentaje.',
+                        'tabindex' => '5',
+                        'min' => '0',
+                        'max' => '100',
                     )
                 )
-                    );
+            );
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => Socio::class,
-            'adjuntos' => []
+            'data_class' => SociedadAnonimaSocio::class,
         ]);
-        $resolver->setRequired('adjuntos');
     }
 }
