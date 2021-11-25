@@ -224,5 +224,85 @@
                         {% endfor %}
                     </tbody>
             </table>
+    {% elseif is_granted('ROLE_USER') and is_granted('ROLE_AUDITORIA') %}
+        <h3>Auditoría</h3>
+        <div class="row mt-5">
+            <div class="col-md-12">
+            <h5 class="mb-2">Cantidad de solicitudes rechazadas por mesa de entrada</h5>
+                <div class="form-group col-md-12 row">
+                    <label for="fechaDesdeRechazadas" class="col-form-label pr-2">Fecha desde</label>
+                    <input type="date" class="form-control col-md-2" id="fechaDesdeRechazadas" placeholder="Ingrese una fecha">
+
+                    <label for="fechaHastaRechazadas" class="col-form-label pr-2 pl-2">Fecha hasta</label>
+                    <input type="date" class="form-control col-md-2" id="fechaHastaRechazadas" placeholder="Ingrese una fecha">
+
+                    <button class="btn btn-primary ml-4" id="consultarSolicitudesRechazadas" disabled onclick="consultarSolicitudesRechazadas();">Consultar</button>
+                    <span id="cantidad" class="col-form-label ml-5"></span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mt-3">
+                <h5>Ultima actividad</h5>
+                <div class="list-group">
+                {% for historico in historicos %}
+                <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
+                    <div class="d-flex w-100 justify-content-between">
+                    <b>Actualización</b>
+                    <small class="text-muted ml-auto">Fecha: {{historico.fechaCreacion|date('d-m-Y')}}</small>
+                    </div>
+                    <p class="mb-1">El formulario de la sociedad anónima "{{historico.sociedadAnonima.nombre}}" cambió al estado "{{historico.estado}}".</p>
+                </a>
+                {% endfor %}
+                </div>
+            </div>
+            <div class="col-md-6 mt-5">
+            <h5>Estadísticas</h5>
+                <div class="list-group">
+                <a href="#" class="list-group-item list-group-item-action"><b>Promedio de tiempo de aprobación de formularios:</b> {% if promedioAprobacion == 1 %}{{promedioAprobacion}} día.{% else %}{{promedioAprobacion}} días.{% endif %}</a>
+                <a href="#" class="list-group-item list-group-item-action"><b>Confirmaciones del colegio de escribanos:</b> {% if confirmacionesEscribanos == 1 %}1 confirmación.{% else %}{{confirmacionesEscribanos}} confirmaciones.{% endif %}</a>
+                <a href="#" class="list-group-item list-group-item-action"><b>Rechazos del colegio de escribanos:</b> {% if rechazosEscribanos == 1 %} {{rechazosEscribanos}} rechazo.{% else %}{{rechazosEscribanos}} rechazos.{% endif %}</a>
+                <a href="#" class="list-group-item list-group-item-action"><b>Porcentaje de solicitudes no corregidas dentro del plazo indicado:</b> El {{porcentajeNoCorregidos}}% de las solicitudes no se corrigen.</a>
+                </div>
+            </div>
+        </div>
     {% endif %}
+{% endblock %}
+{% block javascripts %}
+{{parent()}}
+<script>
+function consultarSolicitudesRechazadas(){
+
+    $.ajax({
+        type: "POST",
+        url: "{{ path('solicitudes_rechazadas') }}",
+        data: {
+            fechaDesde: $("#fechaDesdeRechazadas").val(),
+            fechaHasta: $("#fechaHastaRechazadas").val()
+        },
+        success: function (response) {
+            if(parseInt(response.cantidad) == 1){
+                $("#cantidad").text('Cantidad: ' + response.cantidad + ' formulario rechazado.')
+            }else{
+                 $("#cantidad").text('Cantidad: ' + response.cantidad + ' formularios rechazados.')
+            }
+        }
+    });
+
+}
+
+
+$(document).ready(function () {
+    
+
+    $("#fechaDesdeRechazadas, #fechaHastaRechazadas").on("change", function () {
+        if($("#fechaDesdeRechazadas").val() != '' && $("#fechaHastaRechazadas").val() != ''){
+            $("#consultarSolicitudesRechazadas").prop('disabled', false)
+        }else{
+            $("#consultarSolicitudesRechazadas").prop('disabled', true)
+        }
+    });
+
+});
+</script>
 {% endblock %}

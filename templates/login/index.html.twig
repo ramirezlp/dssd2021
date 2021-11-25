@@ -12,7 +12,7 @@
     <form class="form-signin" action="{{ path('login') }}" method="post">
       <h1 class="h3 mb-3 font-weight-normal">Iniciar Sesión</h1>
       <label for="inputEmail" class="sr-only">Usuario</label>
-      <input type="text" id="username" placeholder="Usuario" class="form-control" required name="_username" value="{{ last_username }}"/>
+      <input type="text" id="username" autocomplete="off" placeholder="Usuario" class="form-control" required name="_username" value="{{ last_username }}"/>
       <label for="inputPassword" class="sr-only">Contraseña</label>
       <input type="password" class="form-control" placeholder="Contraseña" required id="password" name="_password"/>
       <div class="checkbox mb-3">

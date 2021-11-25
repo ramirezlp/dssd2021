@@ -38,4 +38,9 @@ class ConstanteEstadoFormulario {
      */
     const RECHAZADO = 'RECHAZADO';
 
+    /**
+     * RECHAZA_COLEGIO_ESCRIBANOS
+     */
+    const RECHAZA_COLEGIO_ESCRIBANOS = 'RECHAZA_COLEGIO_ESCRIBANOS';
+
 }

@@ -39,7 +39,8 @@ class SocioType extends AbstractType
                     'attr' => array(
                         'class' => 'form-control',
                         'placeholder' => 'Escriba un nombre.',
-                        'tabindex' => '5'
+                        'tabindex' => '5',
+                        'autocomplete' => 'off'
                     )
                 )
             )->add(
@@ -51,7 +52,8 @@ class SocioType extends AbstractType
                     'attr' => array(
                         'class' => 'form-control',
                         'placeholder' => 'Escriba un apellido.',
-                        'tabindex' => '5'
+                        'tabindex' => '5',
+                        'autocomplete' => 'off'
                     )
                 )
                     );

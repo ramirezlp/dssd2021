@@ -10,6 +10,7 @@ use App\Entity\SociedadAnonima;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\Constants\ConstanteEstadoFormulario;
+use App\Entity\HistoricoEstadoSociedadAnonima;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
@@ -28,7 +29,7 @@ class LoginController extends AbstractController
         $em = $this->getDoctrine()->getManager();
 
 
-        if($this->isGranted('ROLE_USER')){
+        if($this->isGranted('ROLE_USER') && ! $this->isGranted('ROLE_AUDITORIA')){
             if(! isset($_SESSION['X-Bonita-API-Token'])){
                 Access::login($this->getUser()->getBonitaUser(), $this->getUser()->getBonitaPass());
                 if($this->getUser()->getBonitaUserId() == null){
@@ -112,6 +113,81 @@ class LoginController extends AbstractController
             }
         }else if($this->isGranted('ROLE_LEGALES')){
             $parameters['pendientes'] = $em->getRepository(SociedadAnonima::class)->findBy(array('estado' => ConstanteEstadoFormulario::PENDIENTE_LEGALES));
+        }else if($this->isGranted('ROLE_AUDITORIA')){
+            $parameters['historicos'] = array_reverse($em->getRepository(HistoricoEstadoSociedadAnonima::class)->findBy(array(), array(), 5));
+            $parameters['rechazosEscribanos'] = sizeOf($em->getRepository(HistoricoEstadoSociedadAnonima::class)->createQueryBuilder('h')
+            ->where('h.estado = :rechazadoColegio')
+            ->setParameter('rechazadoColegio', ConstanteEstadoFormulario::RECHAZA_COLEGIO_ESCRIBANOS)
+            ->getQuery()
+            ->getResult());
+            $parameters['confirmacionesEscribanos'] = sizeOf($em->getRepository(HistoricoEstadoSociedadAnonima::class)->createQueryBuilder('h')
+            ->where('h.estado = :rechazadoColegio')
+            ->setParameter('rechazadoColegio', ConstanteEstadoFormulario::PENDIENTE_GENERACION_CARPETAS)
+            ->getQuery()
+            ->getResult());
+
+            
+            $parameters['noCorregidos'] = $em->getRepository(SociedadAnonima::class)->createQueryBuilder('sa')
+            ->where('sa.plazoCorreccion >= 0 and sa.estado = :estado')
+            ->setParameter('estado', ConstanteEstadoFormulario::RECHAZADO)
+            ->getQuery()->getResult();
+            $total = sizeOf($parameters['noCorregidos']);
+
+            foreach($parameters['noCorregidos'] as $key => $rechazado){
+                
+                if($rechazado->getPlazoCorreccion() > 0){
+                    $fechaOriginal = clone $rechazado->getFechaCreacion();
+                    $fechaOriginal->setTime(0, 0);
+                    $fechaActualizada = clone $fechaOriginal;
+                    $fechaActualizada = $fechaActualizada->add(new DateInterval('P' . $rechazado->getPlazoCorreccion() . 'D'));
+
+                    $now = new DateTime();
+                    $now->setTime(0,0);
+                    if($fechaActualizada >= $now){
+                        unset($parameters['noCorregidos'][$key]);
+                    }
+                }
+
+            }
+
+            $total = sizeOf($parameters['noCorregidos']);
+
+            if($total > 0)
+            $porcentaje = sizeOf($parameters['noCorregidos']) * 100 / $total;
+            else
+            $porcentaje = 0;
+
+            $parameters['porcentajeNoCorregidos'] = $porcentaje;
+
+            $aprobadas = $em->getRepository(SociedadAnonima::class)->createQueryBuilder('sa')
+            ->where('sa.estado = :estado')
+            ->setParameter('estado', ConstanteEstadoFormulario::APROBADO)
+            ->getQuery()->getResult();
+
+            $totalAprobadas = sizeOf($aprobadas);
+            $totalDias = 0;
+
+            foreach($aprobadas as $aprobada){
+                $pendiente = $em->getRepository(HistoricoEstadoSociedadAnonima::class)->findOneBy(array('sociedadAnonima' => $aprobada, 'estado' => ConstanteEstadoFormulario::PENDIENTE));
+                $aprobadaHistorico = $em->getRepository(HistoricoEstadoSociedadAnonima::class)->findOneBy(array('sociedadAnonima' => $aprobada, 'estado' => ConstanteEstadoFormulario::APROBADO));
+
+                if($pendiente != null && $aprobadaHistorico != null){
+                    $diff = (array) date_diff($pendiente->getFechaCreacion(), $aprobadaHistorico->getFechaCreacion());
+                    if($diff['days'] == 0){
+                        $totalDias = $totalDias + 1;
+                    }else{
+                        $totalDias = $totalDias + $diff['days'];
+                    }
+                }
+            }
+
+            if($totalAprobadas > 0)
+            $dias = $totalDias / $totalAprobadas;
+            else
+            $dias = 0;
+
+            $parameters['promedioAprobacion'] = $dias;
+            
         }
 
         return $this->render('index.html.twig', $parameters);

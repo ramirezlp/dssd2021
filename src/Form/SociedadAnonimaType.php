@@ -43,7 +43,8 @@ class SociedadAnonimaType extends AbstractType
                     'attr' => array(
                         'class' => 'form-control',
                         'placeholder' => 'Escriba un nombre.',
-                        'tabindex' => '5'
+                        'tabindex' => '5',
+                        'autocomplete' => 'off'
                     )
                 )
             )
@@ -56,7 +57,8 @@ class SociedadAnonimaType extends AbstractType
                     'attr' => array(
                         'class' => 'form-control',
                         'placeholder' => 'Escriba un domicilio.',
-                        'tabindex' => '5'
+                        'tabindex' => '5',
+                        'autocomplete' => 'off'
                     )
                 )
             )
@@ -69,7 +71,8 @@ class SociedadAnonimaType extends AbstractType
                     'attr' => array(
                         'class' => 'form-control',
                         'placeholder' => 'Escriba un domicilio.',
-                        'tabindex' => '5'
+                        'tabindex' => '5',
+                        'autocomplete' => 'off'
                     )
                 )
             )
@@ -82,7 +85,8 @@ class SociedadAnonimaType extends AbstractType
                     'attr' => array(
                         'class' => 'form-control',
                         'placeholder' => 'Escriba un correo electrónico.',
-                        'tabindex' => '5'
+                        'tabindex' => '5',
+                        'autocomplete' => 'off'
                     )
                 )
             )

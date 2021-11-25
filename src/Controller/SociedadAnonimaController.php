@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use CURLFile;
+use DateTime;
 use Exception;
 use App\Resources\Access;
 use App\Entity\PaisEstado;
@@ -12,9 +13,11 @@ use App\Form\SociedadAnonimaType;
 use App\Resources\ApiEstampillado;
 use App\Entity\SociedadAnonimaSocio;
 use Symfony\Component\HttpFoundation\Request;
+use App\Entity\HistoricoEstadoSociedadAnonima;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Entity\Constants\ConstanteEstadoFormulario;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\String\Slugger\SluggerInterface;
@@ -141,6 +144,11 @@ class SociedadAnonimaController extends AbstractController
             $sociedadAnonima->setCaseId($_SESSION['caseId']);
             $this->getUser()->setBonitaUserId($_SESSION['userId']);
 
+            $historico = new HistoricoEstadoSociedadAnonima();
+            $historico->setSociedadAnonima($sociedadAnonima);
+            $historico->setEstado(ConstanteEstadoFormulario::PENDIENTE);
+
+            $em->persist($historico);
             $em->persist($sociedadAnonima);
             $em->flush();
 
@@ -315,6 +323,12 @@ class SociedadAnonimaController extends AbstractController
             $sociosList); 
             $sociedadAnonima->setPlazoCorreccion(0);
 
+            $historico = new HistoricoEstadoSociedadAnonima();
+            $historico->setSociedadAnonima($sociedadAnonima);
+            $historico->setEstado(ConstanteEstadoFormulario::PENDIENTE);
+
+            $em->persist($historico);
+
             $em->flush();
 
             $this->addFlash(
@@ -376,6 +390,19 @@ class SociedadAnonimaController extends AbstractController
             unset($_SESSION['cookie']);
             unset($_SESSION['client']);
 
+            $historico = new HistoricoEstadoSociedadAnonima();
+            $historico->setSociedadAnonima($formulario);
+            $historico->setEstado(ConstanteEstadoFormulario::RECHAZA_COLEGIO_ESCRIBANOS);
+
+            $em->persist($historico);
+
+            $historico2 = new HistoricoEstadoSociedadAnonima();
+            $historico2->setSociedadAnonima($formulario);
+            $historico2->setEstado(ConstanteEstadoFormulario::PENDIENTE_LEGALES);
+
+            $em->persist($historico2);
+            $em->flush();
+            
             $this->addFlash(
                 'success',
                 'Se rechazó correctamente el trámite. Queda pendiente de validación.'
@@ -390,6 +417,12 @@ class SociedadAnonimaController extends AbstractController
     
             $formulario->setEstado(ConstanteEstadoFormulario::RECHAZADO);
     
+            $historico = new HistoricoEstadoSociedadAnonima();
+            $historico->setSociedadAnonima($formulario);
+            $historico->setEstado(ConstanteEstadoFormulario::RECHAZADO);
+
+            $em->persist($historico);
+
             $username = $this->getUser()->getBonitaUser();
             $password = $this->getUser()->getBonitaPass();
             Access::login($username, $password);
@@ -402,6 +435,8 @@ class SociedadAnonimaController extends AbstractController
             unset($_SESSION['cookie']);
             unset($_SESSION['client']);
     
+
+
             $em->flush();
     
             $this->addFlash(
@@ -444,10 +479,17 @@ class SociedadAnonimaController extends AbstractController
             $formulario->setQr("qr-" . $hash .".png");
             $formulario->setEstado(ConstanteEstadoFormulario::PENDIENTE_GENERACION_CARPETAS);
             
+            $historico = new HistoricoEstadoSociedadAnonima();
+            $historico->setSociedadAnonima($formulario);
+            $historico->setEstado(ConstanteEstadoFormulario::PENDIENTE_GENERACION_CARPETAS);
+
+            $em->persist($historico);
 
             Process::assignTask($taskId, $this->getUser()->getBonitaUserId());
             Process::setVariableByCase($formulario->getCaseId(), 'tramiteValido', "true", 'java.lang.Boolean');
             Process::completeActivity($taskId);
+
+
 
             $em->flush();
 
@@ -473,6 +515,12 @@ class SociedadAnonimaController extends AbstractController
             $formulario->setEstado(ConstanteEstadoFormulario::PENDIENTE_LEGALES);
             $formulario->setNumeroExpediente($qb + 1);
     
+            $historico = new HistoricoEstadoSociedadAnonima();
+            $historico->setSociedadAnonima($formulario);
+            $historico->setEstado(ConstanteEstadoFormulario::PENDIENTE_LEGALES);
+
+            $em->persist($historico);
+
             $username = $this->getUser()->getBonitaUser();
             $password = $this->getUser()->getBonitaPass();
             $caseId = $formulario->getCaseId();
@@ -529,6 +577,32 @@ class SociedadAnonimaController extends AbstractController
         ]);
     }
 
+
+    /**
+     * @Route("/solicitudes_rechazadas", name="solicitudes_rechazadas")
+     */
+    public function solicitudesRechazadas(Request $request): Response
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $fechaDesde = DateTime::createFromFormat('!Y-m-d', $_POST['fechaDesde']);
+        $fechaHasta = DateTime::createFromFormat('!Y-m-d', $_POST['fechaHasta']);
+
+        $qb_1 = sizeOf($em->getRepository(HistoricoEstadoSociedadAnonima::class)->createQueryBuilder('h')
+            ->where('h.fechaCreacion >= :fechaDesde')
+            ->andWhere('h.fechaCreacion <= :fechaHasta')
+            ->andWhere('h.estado = :rechazado')
+            ->setParameter('fechaHasta', $fechaHasta)
+            ->setParameter('fechaDesde', $fechaDesde)
+            ->setParameter('rechazado', ConstanteEstadoFormulario::RECHAZADO)
+            ->getQuery()
+            ->getResult());
+
+        return new JsonResponse(array(
+            'cantidad' => $qb_1
+        ));
+    }
+
     /**
      * @Route("/generar_carpetas_sa", name="generar_carpetas_sa")
      */
@@ -539,6 +613,12 @@ class SociedadAnonimaController extends AbstractController
         $formulario = $em->getRepository(SociedadAnonima::class)->findOneBy(array('id' => $_GET['id']));
 
         $formulario->setEstado(ConstanteEstadoFormulario::PENDIENTE_RETIRO_DOCUMENTACION);
+
+        $historico = new HistoricoEstadoSociedadAnonima();
+        $historico->setSociedadAnonima($formulario);
+        $historico->setEstado(ConstanteEstadoFormulario::PENDIENTE_RETIRO_DOCUMENTACION);
+
+        $em->persist($historico);
 
         $username = $this->getUser()->getBonitaUser();
         $password = $this->getUser()->getBonitaPass();
@@ -571,6 +651,12 @@ class SociedadAnonimaController extends AbstractController
         $formulario = $em->getRepository(SociedadAnonima::class)->findOneBy(array('id' => $_GET['id']));
 
         $formulario->setEstado(ConstanteEstadoFormulario::APROBADO);
+
+        $historico = new HistoricoEstadoSociedadAnonima();
+        $historico->setSociedadAnonima($formulario);
+        $historico->setEstado(ConstanteEstadoFormulario::APROBADO);
+
+        $em->persist($historico);
 
         $username = $this->getUser()->getBonitaUser();
         $password = $this->getUser()->getBonitaPass();
