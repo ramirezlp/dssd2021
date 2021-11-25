@@ -80,6 +80,8 @@ class SociedadAnonimaController extends AbstractController
                     }else{
                         $paisNew->setPais($pais->getPais());
                         $paisNew->setEstado($pais->getEstado());
+                        $paisNew->setLenguaje($pais->getLenguaje());
+                        $paisNew->setContinente($pais->getContinente());
                         $em->persist($paisNew);
                         $sociedadAnonima->addPaisesEstados($paisNew);
                     }
@@ -91,6 +93,8 @@ class SociedadAnonimaController extends AbstractController
                             $sociedadAnonima->addPaisesEstados($entity);
                         }else{
                             $paisNew->setPais($pais->getPais());
+                            $paisNew->setLenguaje($pais->getLenguaje());
+                            $paisNew->setContinente($pais->getContinente());
                             $em->persist($paisNew);
                             $sociedadAnonima->addPaisesEstados($paisNew);
                         }
@@ -677,6 +681,40 @@ class SociedadAnonimaController extends AbstractController
         );
 
         return $this->redirectToRoute('homepage');
+    }
+
+    /**
+     * @Route("/api/continenteExportador", name="continente_exportador")
+     */
+    public function continenteExportador(Request $request): Response
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $paisEstados = $em->getRepository(PaisEstado::class)->findAll();
+
+        $continentes = [];
+        foreach($paisEstados as $paisEstado){
+            if($paisEstado->getContinente() != null and $paisEstado->getPais() != 'AR'){
+                $continente = json_decode($paisEstado->getContinente());
+                
+                if(isset($continentes[$continente->name])){
+                    if(! in_array($paisEstado->getPais(), $continentes[$continente->name])){
+                        $continentes[$continente->name] = $continentes[$continente->name] + 1;
+                    }
+                }else{
+                    $continentes[$continente->name] = 1;
+                }
+            }
+        } 
+        
+        /*
+        if(sizeOf($continentes) == 0){
+            $pais = 'Ninguno';
+        }else{
+            $pais = asort($continentes);
+        }*/
+
+        return new JsonResponse(array('Continente' => $continentes));
     }
 
     

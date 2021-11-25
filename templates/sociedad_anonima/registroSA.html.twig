@@ -217,6 +217,7 @@
           $("#sociedad_anonima_socios_"+ (counter-1)).addClass('row pt-2')
           $("#sociedad_anonima_socios_"+ (counter-1) + " div").addClass('col')
           var socio = $("#sociedad_anonima_socios_"+ (counter-1) + "_socio").clone();
+
           $("#sociedad_anonima_socios_"+ (counter-1)).find('div:first').remove();
           $("#sociedad_anonima_socios_"+ (counter-1)).prepend(socio);
           $("#sociedad_anonima_socios_"+ (counter-1) + "_socio").addClass('row col-md-6');
@@ -330,6 +331,12 @@
                 query:  `query {
                             country (code: "${codigoPais}") {
                                 name,
+    							languages {
+                                	name
+                                },
+    							continent {
+                                	name
+                                },
                                 states {
                                     name
                                 }
@@ -337,6 +344,10 @@
                         }`
             }),
         success: function(result) {
+
+            $("#sociedad_anonima_paisesEstados_" + select + "_lenguaje").val(JSON.stringify(result.data.country.languages))
+            $("#sociedad_anonima_paisesEstados_" + select + "_continente").val(JSON.stringify(result.data.country.continent))
+
             $.each(result.data.country.states, function(i, obj) {
                 var div_data="<option value='"+obj.name+"'>"+obj.name+"</option>";
                 $(div_data).appendTo('#sociedad_anonima_paisesEstados_' + id + '_estadoAux'); 
@@ -382,6 +393,8 @@ $(document).ready(function() {
           // create a new list element and add it to the list
           var newElem = jQuery(list.attr('data-widget-tags')).html(newWidget);
           newElem.appendTo(list);
+          $("#sociedad_anonima_paisesEstados_" + (counter-1) +"_continente").parent().addClass('d-none')
+          $("#sociedad_anonima_paisesEstados_" + (counter-1) +"_lenguaje").parent().addClass('d-none')
           $("#sociedad_anonima_paisesEstados_"+ (counter-1)).addClass('row pt-2')
           $("#sociedad_anonima_paisesEstados_"+ (counter-1) + " div").addClass('col')
           $("#sociedad_anonima_paisesEstados_"+ (counter-1) +"_pais").parent().addClass('d-none')

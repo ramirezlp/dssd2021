@@ -80,6 +80,28 @@ class PaisEstadoType extends AbstractType
                     'tabindex' => '5'
                 )
             )
+        )->add(
+            'continente',
+            TextType::class,
+            array(
+                'required' => false,
+                'attr' => array(
+                    'class' => 'form-control d-none',
+                    'data-placeholder' => '-- Elegir --',
+                    'tabindex' => '5'
+                )
+            )
+        )->add(
+            'lenguaje',
+            TextType::class,
+            array(
+                'required' => false,
+                'attr' => array(
+                    'class' => 'form-control d-none',
+                    'data-placeholder' => '-- Elegir --',
+                    'tabindex' => '5'
+                )
+            )
         );
     }
 

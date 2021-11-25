@@ -27,6 +27,16 @@ class PaisEstado
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
+    private $continente;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $lenguaje;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
     private $estado;
 
     /**
@@ -101,6 +111,46 @@ class PaisEstado
         if ($this->sociedades->removeElement($sociedadAnonima)) {
             $sociedadAnonima->removePaisesEstados($this);
         }
+        return $this;
+    }
+
+    /**
+     * Get the value of continente
+     */ 
+    public function getContinente()
+    {
+        return $this->continente;
+    }
+
+    /**
+     * Set the value of continente
+     *
+     * @return  self
+     */ 
+    public function setContinente($continente)
+    {
+        $this->continente = $continente;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of lenguaje
+     */ 
+    public function getLenguaje()
+    {
+        return $this->lenguaje;
+    }
+
+    /**
+     * Set the value of lenguaje
+     *
+     * @return  self
+     */ 
+    public function setLenguaje($lenguaje)
+    {
+        $this->lenguaje = $lenguaje;
+
         return $this;
     }
 }
