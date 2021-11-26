@@ -622,6 +622,9 @@ class SociedadAnonimaController extends AbstractController
         $historico->setSociedadAnonima($formulario);
         $historico->setEstado(ConstanteEstadoFormulario::PENDIENTE_RETIRO_DOCUMENTACION);
 
+        $this->crearCarpetaDrive($formulario->getNombre() . '-' . $formulario->getId(), $formulario->getQr());
+
+
         $em->persist($historico);
 
         $username = $this->getUser()->getBonitaUser();
@@ -684,7 +687,7 @@ class SociedadAnonimaController extends AbstractController
     }
 
     /**
-     * @Route("/api/continenteExportador", name="continente_exportador")
+     * @Route("/api/continenteMasExportador", name="continente_exportador")
      */
     public function continenteExportador(Request $request): Response
     {
@@ -698,26 +701,177 @@ class SociedadAnonimaController extends AbstractController
                 $continente = json_decode($paisEstado->getContinente());
                 
                 if(isset($continentes[$continente->name])){
-                    if(! in_array($paisEstado->getPais(), $continentes[$continente->name])){
                         $continentes[$continente->name] = $continentes[$continente->name] + 1;
-                    }
                 }else{
                     $continentes[$continente->name] = 1;
                 }
             }
         } 
         
-        /*
+        
         if(sizeOf($continentes) == 0){
             $pais = 'Ninguno';
         }else{
-            $pais = asort($continentes);
-        }*/
+            asort($continentes);
+            $continentes = array_reverse($continentes);
+            $pais = [key($continentes) => reset($continentes)];
+        }
 
-        return new JsonResponse(array('Continente' => $continentes));
+        return new JsonResponse(array('Continente' => $pais));
     }
 
-    
+        /**
+     * @Route("/api/lenguajeMasExportador", name="lenguaje_exportador")
+     */
+    public function lenguajeMasExportador(Request $request): Response
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $paisEstados = $em->getRepository(PaisEstado::class)->findAll();
+
+        $lenguajes = [];
+        foreach($paisEstados as $paisEstado){
+            if($paisEstado->getLenguaje() != null and $paisEstado->getPais() != 'AR'){
+                $lenguajesSub = json_decode($paisEstado->getLenguaje());
+                
+                foreach($lenguajesSub as $lenguaje){
+                    if(isset($lenguajes[$lenguaje->name])){
+                        $lenguajes[$lenguaje->name] = $lenguajes[$lenguaje->name] + 1;
+                    }else{
+                        $lenguajes[$lenguaje->name] = 1;
+                    }
+                }
+            }
+        } 
+        
+        
+        if(sizeOf($lenguajes) == 0){
+            $lenguajes = 'Ninguno';
+        }else{
+            asort($lenguajes);
+            $lenguajes = array_reverse($lenguajes);
+        }
+
+        return new JsonResponse(array('Lenguajes' => $lenguajes));
+    }
+
+    /**
+     * @Route("/api/estadosSociedadesAnonimas", name="estados_sociedades_anonimas")
+     */
+    public function estadosSociedadesAnonimas(Request $request): Response
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $paisEstados = $em->getRepository(PaisEstado::class)->findAll();
+
+        $estados = [];
+        foreach($paisEstados as $paisEstado){
+            if($paisEstado->getEstado() != null){
+                
+                if(isset($estados[$paisEstado->getPais() . ' - ' . $paisEstado->getEstado()])){
+                    $estados[$paisEstado->getPais() . ' - ' . $paisEstado->getEstado()] = $estados[$paisEstado->getPais() . ' - ' . $paisEstado->getEstado()] + 1;
+                }else{
+                    $estados[$paisEstado->getPais() . ' - ' . $paisEstado->getEstado()] = 1;
+                }
+                
+            }
+        } 
+        
+        
+        if(sizeOf($estados) == 0){
+            $estados = 'Ninguno';
+        }else{
+            asort($estados);
+            $estados = array_reverse($estados);
+        }
+
+        return new JsonResponse(array('Estados donde existen sociedades anonimas' => $estados));
+    }
+
+        /**
+     * @Route("/api/paisesNoExportados", name="paises_no_exportados")
+     */
+    public function paisesNoExportados(Request $request): Response
+    {
+        $em = $this->getDoctrine()->getManager();
+        $cURL = curl_init("https://countries.trevorblades.com/");
+        curl_setopt($cURL, CURLOPT_RETURNTRANSFER, true);
+        
+        // This is not mandatory, but is a good practice.
+        curl_setopt($cURL, CURLOPT_HTTPHEADER,
+            array(
+                'Content-Type: application/json',
+            )
+        );
+        curl_setopt($cURL, CURLOPT_POST, true);
+        curl_setopt($cURL, CURLOPT_POSTFIELDS, json_encode(
+            array(
+                "query" => "query {
+                    countries {
+                        code
+                    }
+                }"
+            )
+        ));
+        
+        $response = curl_exec($cURL);
+        curl_close($cURL);
+        $response = json_decode($response)->data->countries;
+
+        $paises = [];
+        foreach($response as $pais){
+            array_push($paises, $pais->code);
+        }
+
+        $paisEstados = $em->getRepository(PaisEstado::class)->findAll();
+
+        foreach($paisEstados as $paisEstado){
+              $key = array_search($paisEstado->getPais(), $paises);
+              if ($key !== false) {
+                  unset($paises[$key]);
+              }
+        } 
+        
+        
+        if(sizeOf($paises) == 0){
+            $paises = 'Ninguno';
+        }else{
+            asort($paises);
+            $paises = array_reverse($paises);
+        }
+
+        return new JsonResponse(array('Codigos de paises hacia donde NO se exporta' => $paises));
+    }
+
+    function crearCarpetaDrive($nombreCarpeta, $qr){
+
+        $claveJSON = '1cMiYChG_jwFfwa0nrrAChicaqmOnGpp5';
+
+        $googleClient = new \Google_Client();
+        $googleClient->setApplicationName('dssd2021');
+        $googleClient->setAuthConfig('./dssd2021-333219-4498eaaeffef.json');
+        $googleClient->setScopes(['https://www.googleapis.com/auth/drive.file']);
+
+        $api = new \Google_Service_Drive($googleClient);
+
+        $file = new \Google_Service_Drive_DriveFile();
+        $file->setName($nombreCarpeta);
+        $file->setMimeType('application/vnd.google-apps.folder');
+        $file->setParents(array($claveJSON));
+        $folder = $api->files->create($file);
+
+        $file2 = new \Google_Service_Drive_DriveFile();
+        $file2->setName($qr);
+        $file2->setMimeType('image/png');
+        $file2->setDescription('A test document');
+        $file2->setParents(array($folder->id));
+        $createdFile = $api->files->create($file2, array(
+            'data' => file_get_contents('./uploads/' . $qr),
+            'mimeType' => 'image/png',
+            'uploadType' => 'multipart'
+          ));
+
+    }
     
 
     function completar_solicitud($nombre, $domicilioReal, $domicilioLegal, $mail, $estatuto, $paisesestados, $socios){

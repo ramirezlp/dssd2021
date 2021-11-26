@@ -85,17 +85,41 @@
     "egulias/email-validator": {
         "version": "3.1.1"
     },
+    "firebase/php-jwt": {
+        "version": "v3.0.0"
+    },
     "friendsofphp/proxy-manager-lts": {
         "version": "v1.0.5"
+    },
+    "google/apiclient": {
+        "version": "2.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "2.0",
+            "ref": "49c5d7a66d863d28513979bf0666dc77599100c0"
+        }
+    },
+    "google/apiclient-services": {
+        "version": "v0.223.0"
+    },
+    "google/auth": {
+        "version": "v0.8"
     },
     "guzzlehttp/guzzle": {
         "version": "7.3.0"
     },
     "guzzlehttp/promises": {
-        "version": "1.4.1"
+        "version": "1.5.1"
     },
     "guzzlehttp/psr7": {
         "version": "2.0.0"
+    },
+    "guzzlehttp/ringphp": {
+        "version": "1.1.1"
+    },
+    "guzzlehttp/streams": {
+        "version": "3.0.0"
     },
     "laminas/laminas-code": {
         "version": "3.4.1"
@@ -129,6 +153,9 @@
     },
     "phpdocumentor/type-resolver": {
         "version": "1.5.1"
+    },
+    "phpseclib/phpseclib": {
+        "version": "2.0.34"
     },
     "phpspec/prophecy": {
         "version": "1.14.0"
@@ -171,12 +198,6 @@
     "psr/event-dispatcher": {
         "version": "1.0.0"
     },
-    "psr/http-client": {
-        "version": "1.0.1"
-    },
-    "psr/http-factory": {
-        "version": "1.0.1"
-    },
     "psr/http-message": {
         "version": "1.0.1"
     },
@@ -186,8 +207,8 @@
     "psr/log": {
         "version": "1.1.4"
     },
-    "ralouphie/getallheaders": {
-        "version": "3.0.3"
+    "react/promise": {
+        "version": "v2.8.0"
     },
     "sebastian/code-unit-reverse-lookup": {
         "version": "1.0.2"
